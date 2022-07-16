@@ -1,73 +1,72 @@
 package solution;
 
 /*
-LeetCode 18번 문제
-https://leetcode.com/problems/4sum/
+LeetCode 130번 문제
+https://leetcode.com/problems/surrounded-regions/
 */
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class Solution {
-    private int setIndex(int firstIndex, int secondIndex, int index, boolean isStart) {   //start, end 포인터를 설정 및 이동시키는 메서드
-        if (isStart) {
-            if (index == firstIndex || index == secondIndex) {
-                if (index + 1 == firstIndex || index + 1 == secondIndex) {
-                    return index + 2;
-                }
-                return index + 1;
-            }
-        } else {
-            if (index == firstIndex || index == secondIndex) {
-                if (index - 1 == firstIndex || index - 1 == secondIndex) {
-                    return index - 2;
-                }
-                return index - 1;
-            }
+
+    static boolean isFlip;   //뒤집을 수 있는 'O'의 집합인지를 판단하는 플래그
+
+    public static class Index{   //board에서 뒤집을 인덱스를 저장
+        int row;
+        int col;
+
+        public Index(int row, int col) {
+            this.row = row;
+            this.col = col;
         }
-        return index;
     }
 
-    public List<List<Integer>> fourSum(int[] nums, int target) {
+    private void dfs(char[][] board, boolean[][] check, int row, int col, List<Index> indexList) {
+        int[] rowSet = {-1, 0, 1, 0};
+        int[] colSet = {0, 1, 0, -1};
 
-        List<List<Integer>> result = new ArrayList<>();
-        Arrays.sort(nums);
+        check[row][col] = true;
+        indexList.add(new Index(row, col));
 
-        if (nums.length < 4) {
-            return result;
+        for (int i = 0; i < 4; i++) {
+            int nextRow = row + rowSet[i];
+            int nextCol = col + colSet[i];
+            if (nextRow < 0 || nextRow >= board.length || nextCol < 0 || nextCol >= board[0].length) {
+                isFlip = false;   //경계에 접하면 Filp할 수없는 집합이기 때문에 플래그를 false로 변경
+                continue;
+            }
+            if (check[nextRow][nextCol] || board[nextRow][nextCol] == 'X') {
+                continue;
+            }
+            dfs(board, check, nextRow, nextCol, indexList);
         }
+    }
 
-        for (int i = 0; i < nums.length - 1; i++) {
-            int selectedN1 = nums[i];
-            for (int j = i + 1; j < nums.length; j++) {   //i, j 위치의 두 개의 숫자를 선택
-                int selectedN2 = nums[j];
-                long newTarget = (long)target - selectedN1 - selectedN2;   //선택된 숫자들을 뺀 새로운 타겟 생성
+    private void flip(char[][] board, List<Index> indexList) {   //주어진 idnexList의 원소들로 board의 'O'집합을 Filp하는 메서드
+        for (Index index : indexList) {
+            board[index.row][index.col] = 'X';
+        }
+    }
 
-                int start = setIndex(i, j, 0, true);
-                int end = setIndex(i, j, nums.length - 1, false);
+    public void solve(char[][] board) {
 
-                while (start != end) {   //Two Pointer를 사용해서 합이 newTarget과 일치하는 두 숫자를 선택
-                    int sum = nums[start] + nums[end];
+        boolean[][] check = new boolean[board.length][board[0].length];
 
-                    if (sum == newTarget) {
-                        ArrayList<Integer> resultList = new ArrayList<>(List.of(nums[i], nums[j], nums[start], nums[end]));
-                        resultList.sort(Comparator.naturalOrder());
-                        if (!result.contains(resultList)) {   //중복 제거
-                            result.add(resultList);
-                        }
-                    }
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (check[i][j] || board[i][j] == 'X') {
+                    continue;
+                }
 
-                    if (sum < newTarget) {
-                        start = setIndex(i, j, start + 1, true);
-                    }
-                    if (sum >= newTarget) {
-                        end = setIndex(i, j, end - 1, false);
-                    }
+                isFlip = true;
+                List<Index> indexList = new ArrayList<>();
+                dfs(board, check, i, j, indexList);
+
+                if (isFlip) {
+                    flip(board, indexList);
                 }
             }
         }
-        return result;
     }
 }
