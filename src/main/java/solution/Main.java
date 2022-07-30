@@ -1,41 +1,56 @@
 package solution;
 
 /*
-백준 17425번 문제 약수의 합
-https://www.acmicpc.net/problem/17425
+백준 6588번 문제 골드바흐의 추측
+https://www.acmicpc.net/problem/6588
 */
 
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        long[] sumDivisors = new long[1000000 + 1];
-        long[] cumulative = new long[1000000 + 1];
+    public static boolean[] makePrimeSet(int size) {   //아리스토텔레스의 체
+        boolean[] prime = new boolean[size + 1];
+        prime[0] = true;
+        prime[1] = true;
 
-        //100만까지 반복문을 돌며 겹치지 않는 가능한 배수의 조합을 찾는다.
-        for (int i = 1; i <= 1000000; i++) {
-            for (int j = i; j <= (1000000 / i); j++) {
-                if (i == j) {
-                    sumDivisors[i * j] += i;   //배수의 조합이 존재한다면 해당 숫자에 배수들을 더해준다(배수 == 약수)
-                } else {
-                    sumDivisors[i * j] += i + j;
+        for (int i = 2; i * i <= size; i++) {
+            if (!prime[i]) {   //소수이면
+                for (int j = i * i; j <= size; j += i) {   //i * i 부터(i * i이전의 숫자는 이미 다 걸러짐) size까지 i의 배수를 걸러준다.
+                    if (!prime[j]) {                       //ex) i = 5일 경우 5 * 1, 5 * 2 ... 5 * 4는 다 걸러져서 판단할 필요없음
+                        prime[j] = true;
+                    }
                 }
             }
         }
 
-        //배수의 누적합을 계산
-        for (int i = 1; i <= 1000000; i++) {
-            cumulative[i] = cumulative[i - 1] + sumDivisors[i];
+        return prime;
+    }
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        boolean[] prime = makePrimeSet(1000000);
+
+        int number;
+        while ((number = Integer.parseInt(br.readLine())) != 0){
+            boolean flag = false;
+            for (int i = 0; i * 2 <= number; i++) {   //합으로 나타내려는 수 number의 절반까지 탐색
+                if (prime[i]) {   //소수가 아니라면 넘어간다.
+                    continue;
+                }
+
+                int tempNumber = number - i;
+                if (!prime[tempNumber]) {   //number에서 소수 i를 빼준 값도 소수라면 결과식을 생성한다.
+                    bw.write(String.format("%d = %d + %d\n", number, i, tempNumber));
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                bw.write("Goldbach's conjecture is wrong.\n");
+            }
         }
 
-        int n = Integer.parseInt(bf.readLine());
-        for (int i = 0; i < n; i++) {
-            int number = Integer.parseInt(bf.readLine());
-            bw.write(cumulative[number] + "\n");
-        }
-
-        bw.flush();   //버퍼에 출력할 내용을 한번에 담아서 출력(시간 단축)
+        bw.flush();
     }
 }
