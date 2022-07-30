@@ -1,72 +1,103 @@
 package solution;
 
 /*
-LeetCode 130번 문제
-https://leetcode.com/problems/surrounded-regions/
+프로그래머스 순위 문제
+https://school.programmers.co.kr/learn/courses/30/lessons/49191
 */
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Solution {
+    private static class Info {
+        int number;
+        HashSet<Integer> up = new HashSet<>();
+        HashSet<Integer> down = new HashSet<>();
+        boolean isGrade = false;
+        boolean check = false;
 
-    static boolean isFlip;   //뒤집을 수 있는 'O'의 집합인지를 판단하는 플래그
-
-    public static class Index{   //board에서 뒤집을 인덱스를 저장
-        int row;
-        int col;
-
-        public Index(int row, int col) {
-            this.row = row;
-            this.col = col;
+        public Info(int number) {
+            this.number = number;
         }
-    }
 
-    private void dfs(char[][] board, boolean[][] check, int row, int col, List<Index> indexList) {
-        int[] rowSet = {-1, 0, 1, 0};
-        int[] colSet = {0, 1, 0, -1};
-
-        check[row][col] = true;
-        indexList.add(new Index(row, col));
-
-        for (int i = 0; i < 4; i++) {
-            int nextRow = row + rowSet[i];
-            int nextCol = col + colSet[i];
-            if (nextRow < 0 || nextRow >= board.length || nextCol < 0 || nextCol >= board[0].length) {
-                isFlip = false;   //경계에 접하면 Filp할 수없는 집합이기 때문에 플래그를 false로 변경
-                continue;
+        public void checkGrade(int n) {
+            if (n - 1 == up.size() + down.size()) {
+                this.isGrade = true;
             }
-            if (check[nextRow][nextCol] || board[nextRow][nextCol] == 'X') {
-                continue;
-            }
-            dfs(board, check, nextRow, nextCol, indexList);
+        }
+
+
+        //매개변수 Info의 이긴 정보와 진 정보를 추가함
+        public void extendUp(Info superInfo) {
+            this.up.addAll(superInfo.up);
+        }
+
+        public void extendDown(Info superInfo) {
+            this.down.addAll(superInfo.down);
         }
     }
 
-    private void flip(char[][] board, List<Index> indexList) {   //주어진 idnexList의 원소들로 board의 'O'집합을 Filp하는 메서드
-        for (Index index : indexList) {
-            board[index.row][index.col] = 'X';
-        }
-    }
+    public void bfs(Info start, Info[] infos, ArrayList<ArrayList<Integer>> edge, boolean isUp) {
+        Queue<Info> queue = new LinkedList<>();
+        start.check = true;
+        queue.offer(start);
 
-    public void solve(char[][] board) {
-
-        boolean[][] check = new boolean[board.length][board[0].length];
-
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[0].length; j++) {
-                if (check[i][j] || board[i][j] == 'X') {
+        while (!queue.isEmpty()) {
+            Info info = queue.poll();
+            for (Integer number : edge.get(info.number)) {
+                if (infos[number].check) {
                     continue;
                 }
-
-                isFlip = true;
-                List<Index> indexList = new ArrayList<>();
-                dfs(board, check, i, j, indexList);
-
-                if (isFlip) {
-                    flip(board, indexList);
+                infos[number].check = true;
+                if (isUp) {
+                    infos[number].extendUp(info);
+                } else {
+                    infos[number].extendDown(info);
                 }
+                queue.offer(infos[number]);
             }
         }
+    }
+
+    public int solution(int n, int[][] results) {
+        Info[] infos = new Info[n + 1];
+        ArrayList<ArrayList<Integer>> upEdge = new ArrayList<>();   //이긴 정보가 전달되는 간선
+        ArrayList<ArrayList<Integer>> downEdge = new ArrayList<>();   //진 정보가 전달되는 간선
+
+        //초기화 시작
+        for (int i = 0; i <= n; i++) {
+            infos[i] = new Info(i);
+            upEdge.add(new ArrayList<>());
+            downEdge.add(new ArrayList<>());
+        }
+        for (int[] result : results) {
+            infos[result[0]].down.add(result[1]);
+            infos[result[1]].up.add(result[0]);
+            upEdge.get(result[0]).add(result[1]);
+            downEdge.get(result[1]).add(result[0]);
+        }
+        //초기화 끝
+
+        //bfs로 "모든 노드를 시작"으로 탐색하며 진 정보와 이긴 정보를 전달
+        for (int i = 1; i <= n; i++) {
+            for (Info info : infos) {
+                info.check = false;
+            }
+            bfs(infos[i], infos, upEdge, true);
+
+            for (Info info : infos) {
+                info.check = false;
+            }
+            bfs(infos[i], infos, downEdge, false);
+        }
+
+        //순위를 정할 수 있는지 판단(이긴 정보 + 진 정보 + 1 == 전체 노드 개수)
+        for (int i = 1; i <= n; i++) {
+            infos[i].checkGrade(n);
+        }
+
+        long count = Arrays.stream(infos)
+                .filter(info -> info.isGrade)
+                .count();
+        return (int) count;
     }
 }
