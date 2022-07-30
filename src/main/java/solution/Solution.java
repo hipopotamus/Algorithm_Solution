@@ -1,103 +1,35 @@
 package solution;
 
 /*
-프로그래머스 순위 문제
-https://school.programmers.co.kr/learn/courses/30/lessons/49191
+코드스테이츠 코플릿 금고를 털어라 문제
+
+자신이 감옥에 간 사이 연인이었던 줄리아를 앤디에게 빼앗겨 화가 난 조지는 브레드, 맷과 함께 앤디 소유의 카지노 지하에 있는 금고를 털기로 합니다.
+온갖 트랩을 뚫고 드디어 금고에 진입한 조지와 일행들.
+조지는 이와중에 감옥에서 틈틈이 공부한 알고리즘을 이용해 target 금액을 훔칠 수 있는 방법의 경우의 수를 계산하기 시작합니다.
+
+예를 들어 $50 을 훔칠 때 $10, $20, $50 이 있다면 다음과 같이 4 가지 방법으로 $50을 훔칠 수 있습니다.
+
+$50 한 장을 훔친다
+$20 두 장, $10 한 장을 훔친다
+$20 한 장, $10 세 장을 훔친다
+$10 다섯 장을 훔친다
+훔치고 싶은 target 금액과 금고에 있는 돈의 종류 type 을 입력받아, 조지가 target 을 훔칠 수 있는 방법의 수를 리턴하세요.
 */
 
-import java.util.*;
-
 public class Solution {
-    private static class Info {
-        int number;
-        HashSet<Integer> up = new HashSet<>();
-        HashSet<Integer> down = new HashSet<>();
-        boolean isGrade = false;
-        boolean check = false;
+    public long ocean(int target, int[] type) {
+        long[][] dp = new long[type.length + 1][target + 1];
+        dp[0][0] = 1;
 
-        public Info(int number) {
-            this.number = number;
-        }
-
-        public void checkGrade(int n) {
-            if (n - 1 == up.size() + down.size()) {
-                this.isGrade = true;
-            }
-        }
-
-
-        //매개변수 Info의 이긴 정보와 진 정보를 추가함
-        public void extendUp(Info superInfo) {
-            this.up.addAll(superInfo.up);
-        }
-
-        public void extendDown(Info superInfo) {
-            this.down.addAll(superInfo.down);
-        }
-    }
-
-    public void bfs(Info start, Info[] infos, ArrayList<ArrayList<Integer>> edge, boolean isUp) {
-        Queue<Info> queue = new LinkedList<>();
-        start.check = true;
-        queue.offer(start);
-
-        while (!queue.isEmpty()) {
-            Info info = queue.poll();
-            for (Integer number : edge.get(info.number)) {
-                if (infos[number].check) {
-                    continue;
-                }
-                infos[number].check = true;
-                if (isUp) {
-                    infos[number].extendUp(info);
+        for (int i = 1; i < dp.length; i++) {
+            for (int j = 0; j < dp[0].length; j++) {
+                if (j < type[i - 1]) {
+                    dp[i][j] = dp[i - 1][j];
                 } else {
-                    infos[number].extendDown(info);
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - type[i - 1]];
                 }
-                queue.offer(infos[number]);
             }
         }
-    }
-
-    public int solution(int n, int[][] results) {
-        Info[] infos = new Info[n + 1];
-        ArrayList<ArrayList<Integer>> upEdge = new ArrayList<>();   //이긴 정보가 전달되는 간선
-        ArrayList<ArrayList<Integer>> downEdge = new ArrayList<>();   //진 정보가 전달되는 간선
-
-        //초기화 시작
-        for (int i = 0; i <= n; i++) {
-            infos[i] = new Info(i);
-            upEdge.add(new ArrayList<>());
-            downEdge.add(new ArrayList<>());
-        }
-        for (int[] result : results) {
-            infos[result[0]].down.add(result[1]);
-            infos[result[1]].up.add(result[0]);
-            upEdge.get(result[0]).add(result[1]);
-            downEdge.get(result[1]).add(result[0]);
-        }
-        //초기화 끝
-
-        //bfs로 "모든 노드를 시작"으로 탐색하며 진 정보와 이긴 정보를 전달
-        for (int i = 1; i <= n; i++) {
-            for (Info info : infos) {
-                info.check = false;
-            }
-            bfs(infos[i], infos, upEdge, true);
-
-            for (Info info : infos) {
-                info.check = false;
-            }
-            bfs(infos[i], infos, downEdge, false);
-        }
-
-        //순위를 정할 수 있는지 판단(이긴 정보 + 진 정보 + 1 == 전체 노드 개수)
-        for (int i = 1; i <= n; i++) {
-            infos[i].checkGrade(n);
-        }
-
-        long count = Arrays.stream(infos)
-                .filter(info -> info.isGrade)
-                .count();
-        return (int) count;
+        return dp[dp.length - 1][dp[0].length - 1];
     }
 }
