@@ -1,99 +1,70 @@
 package solution;
 
 /*
-코드스테이츠 코플릿 알고리즘 6번 문제_새로운 치킨 소스 레시피
+코드스테이츠 코플릿 알고리즘 7번 문제_빼빼로 데이
 
 문제
-개업 이래로 항상 승승장구하는 '승승장구 치킨집'의 비결은 소스에 있다. 수많은 타사 브랜드 치킨집들이 승승장구 치킨집의 소스 비결을 알아내려고 했으나 빈번히 포기했다.
-그 이유는 5대째 내려오는 '비밀의 승승장구 치킨 소스 비율 레시피'는 70억 인구 중 사장님만 알고 있기 때문이다. 최근, 누리꾼 사이에서 이 레시피의 일부분을 발췌했다는 소문을 듣게 되었다.
-그 소문은 다음과 같다.
+오늘은 빼빼로 데이입니다. 한 회사의 팀장은 출근길에 아몬드 빼빼로 M개와 누드 빼빼로 N개를 구매하여 아침 일찍 출근길에 나섰습니다.
 
-N 가지의 재료 중에 단 M 가지만을 사용하여 조합한 모든 경우의 수 중 하나이다.
-재료는 0과 1로만 이루어진 숫자로 암호화가 되어 있고, 항상 1로 시작하며 복호화를 할 수 없다.
-단, 0이 3개 이상인 재료는 상한 재료이기 때문에 제외한다.
-재료의 순서에 따라 맛이 달라지기 때문에, 재료를 넣는 순서가 다르다면 다른 레시피이다.
-이 소문을 참고하여 '비밀의 승승장구 치킨 소스'가 될 수 있는 경우의 수를 모두 반환하는 함수를 작성하세요.
+팀장은 자신보다 먼저 출근해 있는 직원들에게 구매한 빼빼로를 전부 나누어 주려고 합니다.
+단, 서로 질투하는 경우를 만들지 않기 위해 모든 직원들에게 공평하게 빼빼로를 나누어 주려고 합니다.
+직원들은 각각의 빼빼로를 똑같은 개수만큼 받아야 합니다. 빼빼로를 쪼개서 줄 수는 없습니다.
+
+하지만 회사에 도착하기 전이라 몇 명의 직원들이 있는지 모르는 상황입니다.
+팀장이 아몬드 빼빼로를 4개, 누드 빼빼로를 8개를 구매 했다면, 다음과 같이 세 가지 방법으로 나누어 줄 수 있습니다.
+
+출근한 직원이 1명이라면 아몬드 빼빼로 4개와 누드 빼빼로 8개를 줄 수 있습니다.
+출근한 직원이 2명이라면 아몬드 빼빼로 2개와 누드 빼빼로 4개를 각각 줄 수 있습니다.
+출근한 직원이 3명이라면 빼빼로를 남기지 않고 공평하게 주는 방법은 없습니다.
+출근한 직원이 4명이라면 아몬드 빼빼로 1개와 누드 빼빼로 2개를 각각 줄 수 있습니다.
+팀장은 출근한 직원 수에 따라 어떻게 빼빼로를 나누어 줄지 고민하고 있습니다.
+여러분이 직원 수에 따라 빼빼로를 나누어 주는 방법을 구하는 솔루션을 제공해 주세요.
 
 입력
-인자 1: stuffArr
-int 타입의 재료를 담은 배열
-요소는 0과 1로만 이루어진 숫자이며, 항상 1로 시작합니다.
-요소는 중복될 수 없습니다.
-요소의 길이는 20 이하입니다.
-배열의 길이는 2 이상 10 이하입니다.
-ex) [111, 110, 1010, 10, 10110]
+인자 1: M
+int 타입의 양의 정수 (1 ≤ M ≤ 1,000,000,000)
 
-인자 2: choiceNum
-int 타입의 1 이상 stuffArr 길이 이하의 자연수
-재료를 선택할 수 있는 수를 뜻합니다.
-ex) 2
+인자 2: N
+int 타입의 양의 정수 (1 ≤ N ≤ 1,000,000,000)
 
 출력
-ArrayList<Integer[]> 타입을 반환해야 합니다.
-stuffArr가 [1, 10, 11000, 1111] 이고, choiceNum은 2라면 사용 가능한 재료는 [1, 10, 1111] 입니다. 조합할 수 있는 경우의 수는 6 가지입니다.
-
-주의사항
-만약, 주어진 재료 모두 사용할 수 없다면 null을 반환해야 합니다.
-만약, 사용할 수 있는 재료가 choiceNum보다 작다면 null을 반환해야 합니다.
-조합 및 요소는 작은 숫자 -> 큰 숫자로 정렬합니다.
-예시로 [1, 10, 11000, 1111]이 요소로 들어왔다면, 0이 세 개인 11000을 제외하고 [1, 10, 1111] 순서가 되어야 하며,
-[ [1, 10], [1, 1111], [10, 1], [10, 1111], [1111, 1], [1111, 10] ]을 반환해야 합니다.
+ArrayList<Integer[]> 타입의 output을 리턴해야 합니다.
+output[i]은 다음과 같은 순서를 가진 길이 3의 배열입니다.
+[빼빼로를 받게 되는 직원의 수, 나누어 주는 아몬드 빼빼로의 수, 나누어 주는 누드 빼빼로의 수]
+output은 output[i][0], 즉 '빼빼로를 받게 되는 직원의 수'를 기준으로 오름차순으로 정렬합니다.
 */
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Solution {
-    private void permutation(ArrayList<Integer[]> resultList, Integer[] result, int[] stuffArr, boolean[] check,
-                             int depth, int choiceNum) {
-
-        if (depth == choiceNum) {   //depth가 choiceNum과 같아지면 resultList에 result를 넣어준다.
-            Integer[] tempResult = Arrays.copyOf(result, result.length);
-            resultList.add(tempResult);
-            return;
+    private int gcd(int M, int N) {   //최대공약수를 구하는 메서드
+        if (M < N) {
+            int temp = M;
+            M = N;
+            N = temp;
         }
-
-        int nextDepth = depth + 1;
-        for (int i = 0; i < stuffArr.length; i++) {
-            boolean[] tempCheck = Arrays.copyOf(check, check.length);
-            if (tempCheck[i]) {   //탐색한 경로에 해당원소가 있다면 탐색하지않고 반복문을 넘어간다
-                continue;
-            }
-            tempCheck[i] = true;   //탐색한 원소의 위치를 true로 변환하고 result에 해당 위치의 stuffArr 원소를 넣어준다.
-            result[depth] = stuffArr[i];
-            permutation(resultList, result, stuffArr, tempCheck, nextDepth, choiceNum);
+        while (M % N != 0) {
+            int tempM = M;
+            M = N;
+            N = tempM % N;
         }
+        return N;
     }
 
-    private boolean checkThreeZero(int num) {   //0이 3개 이상 있는지 판단하는 메서드
-        int count = 0;
-        while (num > 0) {
-            if (count >= 3) {
-                return false;
-            }
-            if (num % 10 == 0) {
-                count++;
-            }
-            num = num / 10;
-        }
-        return true;
-    }
-
-    public ArrayList<Integer[]> newChickenRecipe(int[] stuffArr, int choiceNum) {
+    public ArrayList<Integer[]> divideChocolateStick(int M, int N) {
         // TODO:
         ArrayList<Integer[]> resultList = new ArrayList<>();
-        int[] newStuffArr = Arrays.stream(stuffArr)   //0이 세개있는 원소 제거, 정렬
-                .filter(this::checkThreeZero)
-                .sorted()
-                .toArray();
-        if (newStuffArr.length == 0 || newStuffArr.length < choiceNum) {
-            return null;
+        int gcd = gcd(M, N);
+        for (int i = 1; i <= gcd; i++) {
+            if (M % i != 0 || N % i != 0) {   //인덱스가 주어진 두 수의 약수가 아니면 반복문을 넘어간다(나누어지지 않기 때문).
+                continue;
+            }
+            Integer[] result = new Integer[3];
+            result[0] = i;
+            result[1] = M / i;
+            result[2] = N / i;
+            resultList.add(result);
         }
-
-        boolean[] check = new boolean[newStuffArr.length];   //특정 index의 원소가 탐색됬는지 나타내는 배열
-        Integer[] result = new Integer[choiceNum];
-        permutation(resultList, result, newStuffArr, check, 0, choiceNum);
-
         return resultList;
     }
 }
