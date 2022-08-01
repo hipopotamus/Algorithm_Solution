@@ -1,70 +1,75 @@
 package solution;
 
 /*
-코드스테이츠 코플릿 알고리즘 7번 문제_빼빼로 데이
+코드스테이츠 코플릿 데일리코딩 9번 문제_집밥이 그리워
 
+집밥이 그리워
 문제
-오늘은 빼빼로 데이입니다. 한 회사의 팀장은 출근길에 아몬드 빼빼로 M개와 누드 빼빼로 N개를 구매하여 아침 일찍 출근길에 나섰습니다.
+김코딩은 몇 년의 해외 출장 끝에 본가에 내려왔습니다. 오랜만에 보는 김코딩의 얼굴에 반가웠던 부모님은 상다리가 부러질 정도로 음식을 만들었습니다.
+감동의 재회도 잠시, 의자에 앉아 식사를 하려던 김코딩은 무엇부터 먹어야 될지 깊은 생각에 빠졌습니다.
+정성스럽게 차려 주신 만큼, 최대한 많은 방법으로 다양하게 먹고 싶었기 때문입니다.
 
-팀장은 자신보다 먼저 출근해 있는 직원들에게 구매한 빼빼로를 전부 나누어 주려고 합니다.
-단, 서로 질투하는 경우를 만들지 않기 위해 모든 직원들에게 공평하게 빼빼로를 나누어 주려고 합니다.
-직원들은 각각의 빼빼로를 똑같은 개수만큼 받아야 합니다. 빼빼로를 쪼개서 줄 수는 없습니다.
-
-하지만 회사에 도착하기 전이라 몇 명의 직원들이 있는지 모르는 상황입니다.
-팀장이 아몬드 빼빼로를 4개, 누드 빼빼로를 8개를 구매 했다면, 다음과 같이 세 가지 방법으로 나누어 줄 수 있습니다.
-
-출근한 직원이 1명이라면 아몬드 빼빼로 4개와 누드 빼빼로 8개를 줄 수 있습니다.
-출근한 직원이 2명이라면 아몬드 빼빼로 2개와 누드 빼빼로 4개를 각각 줄 수 있습니다.
-출근한 직원이 3명이라면 빼빼로를 남기지 않고 공평하게 주는 방법은 없습니다.
-출근한 직원이 4명이라면 아몬드 빼빼로 1개와 누드 빼빼로 2개를 각각 줄 수 있습니다.
-팀장은 출근한 직원 수에 따라 어떻게 빼빼로를 나누어 줄지 고민하고 있습니다.
-여러분이 직원 수에 따라 빼빼로를 나누어 주는 방법을 구하는 솔루션을 제공해 주세요.
+밥은 한 가지이며 반찬은 다수일 때, 밥과 함께 먹을 수 있는 반찬의 모든 경우의 수를 배열에 담아 리턴하세요.
 
 입력
-인자 1: M
-int 타입의 양의 정수 (1 ≤ M ≤ 1,000,000,000)
-
-인자 2: N
-int 타입의 양의 정수 (1 ≤ N ≤ 1,000,000,000)
+인자 1: sideDishes
+String 타입의 영문으로 된 반찬이 나열되어 있는 배열
 
 출력
-ArrayList<Integer[]> 타입의 output을 리턴해야 합니다.
-output[i]은 다음과 같은 순서를 가진 길이 3의 배열입니다.
-[빼빼로를 받게 되는 직원의 수, 나누어 주는 아몬드 빼빼로의 수, 나누어 주는 누드 빼빼로의 수]
-output은 output[i][0], 즉 '빼빼로를 받게 되는 직원의 수'를 기준으로 오름차순으로 정렬합니다.
+ArrayList<String[]> 타입을 리턴해야 합니다.
+밥과 함께 먹을 수 있는 반찬의 모든 경우의 수가 담긴 배열을 포함한 ArrayList
+
+주의사항
+반찬은 영문으로 작성이 되어 있습니다.
+반찬은 중복되지 않습니다.
+반찬을 먹지 않는 것도 포함됩니다. (출력되는 2차원 배열은 빈 배열을 포함합니다.)
+반찬은 3개 이상 99개 이하입니다.
+출력되는 배열은 전부 오름차순으로 정렬되어야 합니다.
+
+입출력 예시
+ArrayList<String[]> output = missHouseMeal(new String[]{"eggroll", "kimchi", "fishSoup"});
+System.out.println(output);
+[ [],
+  [eggroll, fishSoup, kimchi],
+  [eggroll, fishSoup],
+  [eggroll, kimchi],
+  [eggroll],
+  [fishSoup, kimchi],
+  [fishSoup],
+  [kimchi],
+]
 */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Solution {
-    private int gcd(int M, int N) {   //최대공약수를 구하는 메서드
-        if (M < N) {
-            int temp = M;
-            M = N;
-            N = temp;
+    ArrayList<String[]> resultList = new ArrayList<>();
+
+    private void combination(String[] sideDishes, String[] result, int start, int depth, int max) {   //조합을 구하는 메서드
+        if (depth == max) {
+            String[] tempResult = Arrays.copyOf(result, result.length);
+            resultList.add(tempResult);
+            return;
         }
-        while (M % N != 0) {
-            int tempM = M;
-            M = N;
-            N = tempM % N;
+
+        for (int i = start; i < sideDishes.length; i++) {
+            result[depth] = sideDishes[i];
+            combination(sideDishes, result, i + 1, depth + 1, max);
         }
-        return N;
     }
 
-    public ArrayList<Integer[]> divideChocolateStick(int M, int N) {
+    public ArrayList<String[]> missHouseMeal(String[] sideDishes) {
         // TODO:
-        ArrayList<Integer[]> resultList = new ArrayList<>();
-        int gcd = gcd(M, N);
-        for (int i = 1; i <= gcd; i++) {
-            if (M % i != 0 || N % i != 0) {   //인덱스가 주어진 두 수의 약수가 아니면 반복문을 넘어간다(나누어지지 않기 때문).
-                continue;
-            }
-            Integer[] result = new Integer[3];
-            result[0] = i;
-            result[1] = M / i;
-            result[2] = N / i;
-            resultList.add(result);
+        Arrays.sort(sideDishes);
+
+        resultList.add(new String[0]);
+        for (int i = sideDishes.length; i >= 1; i--) {   //인덱스만큼 선택하는 조합을 구해서 resultList에 넣는다.
+            String[] result = new String[i];
+            combination(sideDishes, result, 0, 0, i);
         }
+        resultList.sort((o1, o2) -> Arrays.toString(o1).compareTo(Arrays.toString(o2)));   //구해진 부분집합들을 사전순으로 정렬한다.
+
         return resultList;
     }
 }
