@@ -1,82 +1,94 @@
 package solution;
 
 /*
-백준 14226번 문제_이모티콘
-https://www.acmicpc.net/problem/7576
+백준 1707번 문제_이분그래프
+https://www.acmicpc.net/problem/1707
 */
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
 public class Main {
 
-    public static class Node{
-        int time;
-        int clip;
-        int screen;
+    public static class Node {   //Node 정보를 담은 클래스
+        int number;
+        int team;   //이분그래프인지 판단하기 위한 flag. 1과 -1 두 팀으로 나뉜다.
         boolean check = false;
+        ArrayList<Node> edgeList = new ArrayList<>();
 
-        public void setNode(int time, int clip, int screen) {
-            this.time = time;
-            this.clip = clip;
-            this.screen = screen;
-            this.check = true;
+        public Node(int number) {
+            this.number = number;
+        }
+
+        public void setTeam(int team) {
+            this.team = team;
         }
     }
 
-    public static int bfs(Node[][] nodes, int target) {
+    public static boolean bfs(Node[] nodes, int firstIndex) {   //bfs로 각 노드를 탐색하며, 연결된 노드가 같은 팀인지 확인한다.(연결된 노드가 같은 팀이면 이분그래프아님)
         Queue<Node> queue = new LinkedList<>();
-        nodes[0][1].setNode(0, 0, 1);
-        queue.offer(nodes[0][1]);
+        Node firstNode = nodes[firstIndex];
+        firstNode.setTeam(1);   //초기 팀은 1으로 설정
+        firstNode.check = true;
+        queue.offer(firstNode);
 
         while (!queue.isEmpty()) {
-            Node node = queue.poll();
+            Node node = queue.poll();   //queue에서 node를 꺼낸다.
 
-            int nextTime = node.time + 1;   //다음 시간
-            int pastedScreen = node.screen + node.clip;   //붙여넣어진 화면
-            int copiedClip = node.screen;   //복사된 클립보드
-            int deletedScreen = node.screen - 1;   //삭제된 화면
-
-            //복사&저장
-            if (copiedClip < nodes.length && !nodes[copiedClip][node.screen].check) {
-                nodes[copiedClip][node.screen].setNode(nextTime, copiedClip, node.screen);
-                queue.offer(nodes[copiedClip][node.screen]);
-            }
-
-            //붙여넣기
-            if (pastedScreen < nodes[0].length && !nodes[node.clip][pastedScreen].check && node.clip != 0) {
-                if (pastedScreen == target) {
-                    return nextTime;
+            for (int i = 0; i < node.edgeList.size(); i++) {   //node의 간선만큼 반복문을 돌린다.
+                Node nextNode = node.edgeList.get(i);
+                if (nextNode.check) {
+                    if (node.team == nextNode.team) {   //node에 연결된 노드(=nextNode)가 node와 같은 팀이라면 이분그래프 아님
+                        return false;
+                    }
+                } else {
+                    nextNode.setTeam(node.team * -1);   //nextNode를 한번도 탐색하지 않았다면 node와 다른 team을 설정
+                    nextNode.check = true;
+                    queue.offer(nextNode);
                 }
-                nodes[node.clip][pastedScreen].setNode(nextTime, node.clip, pastedScreen);
-                queue.offer(nodes[node.clip][pastedScreen]);
-            }
-
-            //삭제
-            if (deletedScreen >= 0 && !nodes[node.clip][deletedScreen].check) {
-                if (deletedScreen == target) {
-                    return nextTime;
-                }
-                nodes[node.clip][deletedScreen].setNode(nextTime, node.clip, deletedScreen);
-                queue.offer(nodes[node.clip][deletedScreen]);
             }
         }
-        return -1;
+        return true;
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int target = scanner.nextInt();
-        int max = target + 1;   //항상 clip 또는 screen이 target보다 작은범위에서 답을 구할 수 있다.
+        int total = scanner.nextInt();
 
-        Node[][] nodes = new Node[max][max];
-        for (int i = 0; i < max; i++) {
-            for (int j = 0; j < max; j++) {
-                nodes[i][j] = new Node();
+        for (int i = 0; i < total; i++) {   //주어진 시행회수만큼 반복문을 돌린다.
+            //초기화 시작
+            boolean result = true;
+            int nodeSize = scanner.nextInt();
+            int edgeSize = scanner.nextInt();
+            Node[] nodes = new Node[nodeSize + 1];
+            for (int j = 0; j <= nodeSize; j++) {
+                nodes[j] = new Node(i);
+            }
+
+            for (int k = 0; k < edgeSize; k++) {   //인접리스트 생성
+                Node toNode = nodes[scanner.nextInt()];
+                Node fromNode = nodes[scanner.nextInt()];
+                toNode.edgeList.add(fromNode);
+                fromNode.edgeList.add(toNode);
+            }
+            //초기화 끝
+
+            for (int l = 1; l <= nodeSize; l++) {   //각 노드에 bfs를 적용해서 모든 노드를 탐색하고 이분그래프 여부를 판단한다.
+                if (nodes[l].check) {
+                    continue;
+                }
+                if (!bfs(nodes, l)) {   //bfs에 의해 이분그래프가 아니라고 판단되면 result를 false로 변경
+                    result = false;
+                }
+            }
+
+            if (result) {
+                System.out.println("YES");
+            } else {
+                System.out.println("NO");
             }
         }
-
-        System.out.println(bfs(nodes, target));
     }
 }
