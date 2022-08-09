@@ -1,130 +1,107 @@
 package solution;
 
 /*
-백준 1917번 문제_정육면체 전개도
-https://www.acmicpc.net/problem/1917
+백준 14503번 문제_로봇 청소기
+https://www.acmicpc.net/problem/14503
 */
 
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
-    static int[] dRow = {-1, 0, 1, 0};
-    static int[] dCol = {0, 1, 0, -1};
-    static HashMap<Integer, Integer> numberSet = new HashMap<>();
-    static boolean result;
-
-    //면을 나타내는 클래스
-    public static class Plane{
-        //면의 위치 번호
-        int number;
+    public static class ClearBot {
+        //상우하좌 이동하는데 사용되는 배열
+        int[] dRow = {-1, 0, 1, 0};
+        int[] dCol = {0, 1, 0, -1};
+        //로봇청소기의 위치
         int row;
         int col;
-        //면과 이어진 면들의 위치 번호를 나타내는 필드
-        int up;
-        int right;
-        int down;
-        int left;
+        //로봇 청소기의 방향
+        int direction;
+        //주어진 map
+        int[][] map;
+        //로봇청소기가 청소한 양
+        int count = 0;
+        //로봇청소기가 멈췄는지 판단하는 flag
+        boolean end = false;
 
-        public Plane(int number, int row, int col, int up, int right, int down, int left) {
-            this.number = number;
+        public ClearBot(int row, int col, int direction, int[][] map) {
             this.row = row;
             this.col = col;
-            this.up = up;
-            this.right = right;
-            this.down = down;
-            this.left = left;
+            this.direction = direction;
+            this.map = map;
         }
 
-        public Plane() {
+        //현재 위치 청소하는 메서드
+        public void clear() {
+            //0은 빈칸, 1은 벽, 2는 청소된 공간
+            if (map[row][col] == 0) {
+                map[row][col] = 2;
+                count++;
+            }
         }
-    }
 
-    public static void dfs(int[][] board, boolean[] check, Plane plane) {
-
-        for (int i = 0; i < 4; i++) {
-            int nextRow = plane.row + dRow[i];
-            int nextCol = plane.col + dCol[i];
-            if (nextRow < 0 || nextRow >= board.length || nextCol < 0 || nextCol >= board[0].length
-                    || board[nextRow][nextCol] != 1) {
-                continue;
-            }
-
-            Plane nextPlane = new Plane();
-            //연결된 면과 변이 이어져있을 때 동일한 연결된 면을 갖는다.
-            //면이 상하로 연결되있는 경우(오른쪽, 왼쪽 변과 동일한 연결된 면을 갖음)
-            if (dRow[i] != 0) {
-                //아랫 변과 연결되어 있는 경우
-                if (dRow[i] == 1) {
-                    nextPlane = new Plane(plane.down, nextRow, nextCol, plane.number,
-                            plane.right, numberSet.get(plane.number), plane.left);
-                //윗 변과 연결되어 있는 경우
-                } else {
-                    nextPlane = new Plane(plane.up, nextRow, nextCol, numberSet.get(plane.number),
-                            plane.right, plane.number, plane.left);
+        //이동할 곳을 탐색하고 이동한다.
+        public void searchAndMove() {
+            //direction을 바꿔가며 왼쪽을 탐색
+            for (int i = 0; i < 4; i++) {
+                int leftRow = row + dRow[(direction + 3) % 4];
+                int leftCol = col + dCol[(direction + 3) % 4];
+                //왼쪽이 청소되어있거나 막혀있으면 반복문을 넘김
+                if (map[leftRow][leftCol] == 2 || map[leftRow][leftCol] == 1) {
+                    direction = (direction + 3) % 4;
+                    continue;
                 }
-            //면이 좌우로 연결되있는 경우(위, 아래 변과 동일한 연결된 면을 갖음)
-            } else {
-                //오른쪽 변과 연결되어 있는 경우
-                if (dCol[i] == 1) {
-                    nextPlane = new Plane(plane.right, nextRow, nextCol, plane.up,
-                            numberSet.get(plane.number), plane.down, plane.number);
-                //왼쪽 변과 연결되어 있는 경우
-                } else {
-                    nextPlane = new Plane(plane.left, nextRow, nextCol, plane.up,
-                            plane.number, plane.down, numberSet.get(plane.number));
-                }
-            }
-
-            //정육면체의 위치번호가 겹치면 정육면체를 만들 수 없다.
-            if (check[nextPlane.number]) {
-                result = false;
+                //왼쪽이 비어있으면 direction을 왼쪽으로 변경하고 한칸이동하고 return으로 메서드 탈출
+                direction = (direction + 3) % 4;
+                row = row + dRow[direction];
+                col = col + dCol[direction];
                 return;
             }
 
-            check[nextPlane.number] = true;
-            //board에서 탐색한 위치는 0으로 만들어서 다시 탐색하지 않도록 한다.
-            board[plane.row][plane.col] = 0;
-            dfs(board, check, nextPlane);
+            //반복문을 벗어남 -> 사면이 막혀있거나 청소되있음을 의미
+            int backRow = row + dRow[(direction + 2) % 4];
+            int backCol = col + dCol[(direction + 2) % 4];
+            //뒤쪽이 막혀잇으면 로봇청소기 작동끄기
+            if (map[backRow][backCol] == 1) {
+                end = true;
+                return;
+            }
+
+            //뒤쪽이 안막혀있다면 뒤로한칸 이동하고 처음부터 탐색 시작
+            row = backRow;
+            col = backCol;
+            searchAndMove();
+        }
+
+        //로봇청소기 작동
+        public void start() {
+            while (!end) {
+                clear();
+                searchAndMove();
+            }
         }
     }
 
     public static void main(String[] args) {
+        //초기화 시작
         Scanner scanner = new Scanner(System.in);
-        //면의 반대 위치 설정
-        numberSet.put(0, 5);
-        numberSet.put(5, 0);
-        numberSet.put(1, 3);
-        numberSet.put(3, 1);
-        numberSet.put(2, 4);
-        numberSet.put(4, 2);
+        int rowMax = scanner.nextInt();
+        int colMax = scanner.nextInt();
+        int[][] map = new int[rowMax][colMax];
 
-        for (int k = 0; k < 3; k++) {
-            //초기화 시작
-            int[][] board = new int[6][6];
-            boolean[] check = new boolean[6];
-            Plane firstPlane = new Plane();
-            result = true;
+        int row = scanner.nextInt();
+        int col = scanner.nextInt();
+        int direction = scanner.nextInt();
+        ClearBot clearBot = new ClearBot(row, col, direction, map);
 
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board[0].length; j++) {
-                    int element = scanner.nextInt();
-                    //탐색을 시작할 첫번재 plane 설정
-                    if (!check[0] && element == 1) {
-                        firstPlane = new Plane(0, i, j, 1, 2, 3, 4);
-                        check[0] = true;
-                    }
-                    board[i][j] = element;
-                }
-            }
-            //초기화 끝
-
-            dfs(board, check, firstPlane);
-            if (result) {
-                System.out.println("yes");
-            } else {
-                System.out.println("no");
+        for (int i = 0; i < rowMax; i++) {
+            for (int j = 0; j < colMax; j++) {
+                map[i][j] = scanner.nextInt();
             }
         }
+        //초기화 끝
+
+        clearBot.start();
+        System.out.println(clearBot.count);
     }
 }
