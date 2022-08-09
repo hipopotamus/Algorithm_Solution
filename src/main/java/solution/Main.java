@@ -1,107 +1,131 @@
 package solution;
 
 /*
-백준 14503번 문제_로봇 청소기
-https://www.acmicpc.net/problem/14503
+백준 15662번 문제_톱니바퀴(2)
+https://www.acmicpc.net/problem/15662
 */
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-    public static class ClearBot {
-        //상우하좌 이동하는데 사용되는 배열
-        int[] dRow = {-1, 0, 1, 0};
-        int[] dCol = {0, 1, 0, -1};
-        //로봇청소기의 위치
-        int row;
-        int col;
-        //로봇 청소기의 방향
-        int direction;
-        //주어진 map
-        int[][] map;
-        //로봇청소기가 청소한 양
-        int count = 0;
-        //로봇청소기가 멈췄는지 판단하는 flag
-        boolean end = false;
+    public static class Gear {
+        //톱니바퀴의 극을 담은 list
+        ArrayList<Integer> poleList = new ArrayList<>();
 
-        public ClearBot(int row, int col, int direction, int[][] map) {
-            this.row = row;
-            this.col = col;
-            this.direction = direction;
-            this.map = map;
-        }
-
-        //현재 위치 청소하는 메서드
-        public void clear() {
-            //0은 빈칸, 1은 벽, 2는 청소된 공간
-            if (map[row][col] == 0) {
-                map[row][col] = 2;
-                count++;
-            }
-        }
-
-        //이동할 곳을 탐색하고 이동한다.
-        public void searchAndMove() {
-            //direction을 바꿔가며 왼쪽을 탐색
-            for (int i = 0; i < 4; i++) {
-                int leftRow = row + dRow[(direction + 3) % 4];
-                int leftCol = col + dCol[(direction + 3) % 4];
-                //왼쪽이 청소되어있거나 막혀있으면 반복문을 넘김
-                if (map[leftRow][leftCol] == 2 || map[leftRow][leftCol] == 1) {
-                    direction = (direction + 3) % 4;
-                    continue;
-                }
-                //왼쪽이 비어있으면 direction을 왼쪽으로 변경하고 한칸이동하고 return으로 메서드 탈출
-                direction = (direction + 3) % 4;
-                row = row + dRow[direction];
-                col = col + dCol[direction];
-                return;
+        //톱니바퀴가 인접하는 방향(왼쪽에서 인접하는지 오른쪽에서 인접하는지), 회전 방법, 인접한 극을 받아서 Gear를 회전하는 메서드
+        //결과적으로 이 Gear가 회전한 방법을 반환한다.(회전하지 않으면 0반환)
+        public int linkCycle(boolean isLeftStream, int cycleDirection, int pole) {
+            int linkPole;
+            //톱니바퀴가 왼쪽으로부터 인접한다면 이 Gear에서 인접하는 극은 오른쪽이 된다(12로부터 3번째).
+            if (isLeftStream) {
+                linkPole = poleList.get(2);
+                //오른쪽은 12시로부터 6번째
+            } else {
+                linkPole = poleList.get(6);
             }
 
-            //반복문을 벗어남 -> 사면이 막혀있거나 청소되있음을 의미
-            int backRow = row + dRow[(direction + 2) % 4];
-            int backCol = col + dCol[(direction + 2) % 4];
-            //뒤쪽이 막혀잇으면 로봇청소기 작동끄기
-            if (map[backRow][backCol] == 1) {
-                end = true;
-                return;
+            //맞다은 두 극이 같으면 Gear를 회전하지 않는다.
+            if (linkPole == pole) {
+                return 0;
             }
 
-            //뒤쪽이 안막혀있다면 뒤로한칸 이동하고 처음부터 탐색 시작
-            row = backRow;
-            col = backCol;
-            searchAndMove();
+            //맞다은 두극이 다르면 Gear를 인접한 기어가 회전한 방법의 반대 방법으로 회전시킨다.
+            cycle(-1 * cycleDirection);
+            return -1 * cycleDirection;
         }
 
-        //로봇청소기 작동
-        public void start() {
-            while (!end) {
-                clear();
-                searchAndMove();
+        //회전 방법을 받고 Gear를 회전하는 메서드
+        private void cycle(int cycleDirection) {
+            //시계 방향
+            if (cycleDirection == 1) {
+                Integer endPole = poleList.get(poleList.size() - 1);
+                poleList.remove(poleList.size() - 1);
+                poleList.add(0, endPole);
+
+            }
+            //반시계 방향
+            if (cycleDirection == -1) {
+                Integer firstPole = poleList.get(0);
+                poleList.remove(0);
+                poleList.add(firstPole);
             }
         }
     }
 
+    //index 위치의 Gear를 회전시키고 인접한 Gear들을 연쇠적으로 회전시키는 메서드
+    public static void cycleSimulation(Gear[] gearArray, int index, int cycleDirection) {
+        //초기 Gear
+        Gear gear = gearArray[index];
+        //초기 Gear로 부터 오른쪽 방향을 탐색할 때, Gear(회전 될쪽)와 인접한 Gear(회전 한쪽)간에 인접하는 오른쪽 극
+        Integer tempRightLinkPole = gear.poleList.get(2);
+        //초기 Gear로 부터 왼쪽 방향을 탐색할 때,Gear(회전 될쪽)와 인접한 Gear(회전 한쪽)간에 인접하는 왼쪽 극
+        Integer tempLeftLinkPole = gear.poleList.get(6);
+
+        int tempCycleDirection = cycleDirection;
+        //초기 회전한 Gear로 부터 왼쪽에 있는 Gear들을 연속적으로 회전시킨다.
+        for (int i = index - 1; i >= 0; i--) {
+            //왼쪽에 있는 Gear
+            Gear leftGear = gearArray[i];
+            //회전 시키기 전의 인접하는 왼쪽 극을 저장한다.
+            Integer leftLinkPole = leftGear.poleList.get(6);
+            //회전
+            tempCycleDirection = leftGear.linkCycle(true, tempCycleDirection, tempLeftLinkPole);
+            //만약 회전하지 않는다면 반복문을 끝낸다.
+            if (tempCycleDirection == 0) {
+                break;
+            }
+            //다음 왼쪽에 있는 Gear를 회전할 지 판단하기 위해서 현재 회전시킨 Gear의 회전시키기전 인접한 극을 다음 반복문으로 넘긴다.
+            tempLeftLinkPole = leftLinkPole;
+        }
+
+        tempCycleDirection = cycleDirection;
+        for (int i = index + 1; i < gearArray.length; i++) {
+            Gear rightGear = gearArray[i];
+            Integer rightLinkPole = rightGear.poleList.get(2);
+            tempCycleDirection = rightGear.linkCycle(false, tempCycleDirection, tempRightLinkPole);
+            if (tempCycleDirection == 0) {
+                break;
+            }
+            tempRightLinkPole = rightLinkPole;
+        }
+
+        gear.cycle(cycleDirection);
+    }
+
     public static void main(String[] args) {
         //초기화 시작
+        int result = 0;
         Scanner scanner = new Scanner(System.in);
-        int rowMax = scanner.nextInt();
-        int colMax = scanner.nextInt();
-        int[][] map = new int[rowMax][colMax];
 
-        int row = scanner.nextInt();
-        int col = scanner.nextInt();
-        int direction = scanner.nextInt();
-        ClearBot clearBot = new ClearBot(row, col, direction, map);
+        int gearSize = scanner.nextInt();
+        //주어진 Gear를 담는 배열
+        Gear[] gearArray = new Gear[gearSize];
 
-        for (int i = 0; i < rowMax; i++) {
-            for (int j = 0; j < colMax; j++) {
-                map[i][j] = scanner.nextInt();
+        for (int i = 0; i < gearArray.length; i++) {
+            String next = scanner.next();
+            Gear gear = new Gear();
+            for (int j = 0; j < next.length(); j++) {
+                gear.poleList.add(Integer.parseInt(String.valueOf(next.charAt(j))));
             }
+            gearArray[i] = gear;
         }
         //초기화 끝
 
-        clearBot.start();
-        System.out.println(clearBot.count);
+        int caseSize = scanner.nextInt();
+        //주어지 케이스 횟수만큼 Gear를 회전시킨다.
+        for (int i = 0; i < caseSize; i++) {
+            int index = scanner.nextInt() - 1;
+            int cycleDirection = scanner.nextInt();
+            cycleSimulation(gearArray, index, cycleDirection);
+        }
+
+        //12시 방향이 S극인 Gear의 개수를 구한다.
+        for (int i = 0; i < gearSize; i++) {
+            if (gearArray[i].poleList.get(0) == 1) {
+                result++;
+            }
+        }
+        System.out.println(result);
     }
 }
