@@ -1,102 +1,105 @@
 package solution;
 
 /*
-백준 1208번 문제_부분수열의 합2
-https://www.acmicpc.net/problem/1208
+백준 1939번 문제_중량 제한
+https://www.acmicpc.net/problem/1939
 */
 
 import java.util.*;
 
 public class Main {
-    static long result = 0;
+    public static class Node {
+        int number;
+        boolean check = false;
+        //key로 이어지는 노드(간선)와 value로 중량을 담은 Map
+        HashMap<Integer, Integer> edgeMap = new HashMap<>();
 
-    //max 만큼의 수를 선택해서 더한 값을 combSum에 넣어주는 메서드
-    public static void combination(int[] sequence, ArrayList<Integer> combSum, int sum, int index,
-                                   int depth, int max) {
-        if (depth == max) {
-            combSum.add(sum);
-            return;
-        }
-
-        for (int i = index; i < sequence.length; i++) {
-            sum += sequence[i];
-            combination(sequence, combSum, sum, i + 1, depth + 1, max);
-            sum -= sequence[i];
+        public Node(int number) {
+            this.number = number;
         }
     }
 
+    //weightArray을 이분탐색한다.
+    //weightArray를 이분탐색하며 선택한 중량을 bfs 메서드에 넣어서 true가 반환(선택된 중량이 허용되는 루트가 있다는 뜻)되면 오른쪽(더 무거운 중량)을 탐색한다.
+    public static int binarySearch(int[] weightArray, int start, int end, ArrayList<Node> nodeList) {
+        int left = 0;
+        int right = weightArray.length - 1;
 
-    //부분 수열의 합을 구하는 메서드
-    private static void getSumOfSubSequence(int size, int[] sequence, ArrayList<Integer> combSum) {
-        for (int i = 1; i <= size; i++) {
-            combination(sequence, combSum, 0, 0, 0, i);
-        }
-    }
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            initNodeList(nodeList);
+            boolean flag = bfs(nodeList.get(start), nodeList, end, weightArray[mid]);
 
-    //두개의 배열에서 뽑은 원소가 target이 되는 경우를 count하는 메서드
-    public static void countTarget(ArrayList<Integer> leftSumList, ArrayList<Integer> rightSumList, int target) {
-        //두 배열에서 원소를 뽑지않고 한쪽 배열에서만 원소를 뽑았을 때 target과 일치하는 값이 있으면 count한다.
-        result += Collections.frequency(rightSumList, target);
-        result += Collections.frequency(leftSumList, target);
-
-        //twoPointer를 사용하기 위해 정렬
-        leftSumList.sort(Comparator.naturalOrder());
-        rightSumList.sort(Comparator.naturalOrder());
-
-        int start = 0;
-        int end = rightSumList.size() - 1;
-        //시작은 leftSum의 0번 원소, 끝은 rightSum의 마지막 원소로 두고 twoPointer를 사용해 두 포인터의 합이 target이 되는 값을 찾는다.
-        while (start < leftSumList.size() && end >= 0) {
-            int sum = leftSumList.get(start) + rightSumList.get(end);
-
-            //만약 두 포인터의 합이 target과 같다면 합이 target과 같아지는 각 배열의 원소의 개수를 구해서 곱해준다.(정렬되있어서 가능)
-            if (sum == target) {
-                int leftSum = leftSumList.get(start);
-                int rightSum = rightSumList.get(end);
-                long lCount = 0;
-                long rCount = 0;
-
-                //현재 포인터(sum == target이 되는 위치)로부터 leftSumList 또는 rightSumList의 원소가 동일한 개수를 구한다.
-                while (start < leftSumList.size() && leftSumList.get(start) == leftSum) {
-                    start++;
-                    lCount++;
-                }
-                while (end >= 0 && rightSumList.get(end) == rightSum) {
-                    end--;
-                    rCount++;
-                }
-                result += lCount * rCount;
-            }
-            if (sum < target) {
-                start++;
-            } else if (sum > target){
-                end--;
+            if (flag) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
             }
         }
+        return right;
     }
+
+    public static void initNodeList(ArrayList<Node> nodeList) {
+        for (Node node : nodeList) {
+            node.check = false;
+        }
+    }
+
+    //bfs로 startNode부터 end까지를 탐색한다. end를 탐색하지 못하면 false를 반환
+    //매개변수의 weight보다 nextNode로가는 간선의 중량이 적으면 해당 간선은 탐색하지 않는다.
+    public static boolean bfs(Node startNode, ArrayList<Node> nodeList, int end, int weight) {
+        Queue<Node> queue = new LinkedList<>();
+        startNode.check = true;
+        queue.offer(startNode);
+
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+            HashMap<Integer, Integer> edgeMap = node.edgeMap;
+            for (Integer to : edgeMap.keySet()) {
+                if (nodeList.get(to).check || edgeMap.get(to) < weight) {
+                    continue;
+                }
+                Node nextNode = nodeList.get(to);
+                if (nextNode.number == end) {
+                    return true;
+                }
+                nextNode.check = true;
+                queue.offer(nextNode);
+            }
+        }
+        return false;
+    }
+
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int size = scanner.nextInt();
-        int target = scanner.nextInt();
-        int[] sequence = new int[size];
+        int nodeSize = scanner.nextInt();
+        int edgeSize = scanner.nextInt();
 
-        for (int i = 0; i < size; i++) {
-            sequence[i] = scanner.nextInt();
+        //중량을 담는 배열
+        int[] weightArray = new int[edgeSize];
+        //노드를 담는 리스트
+        ArrayList<Node> nodeList = new ArrayList<>();
+        for (int i = 0; i <= nodeSize; i++) {
+            nodeList.add(new Node(i));
         }
 
-        int middle = (size - 1) / 2;
-        int[] leftSequence = Arrays.copyOfRange(sequence, 0, middle);
-        int[] rightSequence = Arrays.copyOfRange(sequence, middle, size);
+        for (int i = 1; i <= edgeSize; i++) {
+            int from = scanner.nextInt();
+            int to = scanner.nextInt();
+            int weight = scanner.nextInt();
+            nodeList.get(from).edgeMap.put(to, weight);
+            nodeList.get(to).edgeMap.put(from, weight);
+            weightArray[i - 1] = weight;
+        }
 
+        int start = scanner.nextInt();
+        int end = scanner.nextInt();
 
-        ArrayList<Integer> leftSumList = new ArrayList<>();
-        ArrayList<Integer> rightSumList = new ArrayList<>();
+        Arrays.sort(weightArray);
 
-        getSumOfSubSequence(size, leftSequence, leftSumList);
-        getSumOfSubSequence(size, rightSequence, rightSumList);
+        int result = binarySearch(weightArray, start, end, nodeList);
 
-        countTarget(leftSumList, rightSumList, target);
-        System.out.println(result);
+        System.out.println(weightArray[result]);
     }
 }
