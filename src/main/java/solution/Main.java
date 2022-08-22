@@ -1,66 +1,65 @@
 package solution;
 
 /*
-백준 2252번 문제_줄세우기
-https://www.acmicpc.net/problem/2252
+백준 1916번 문제_최소비용 구하기
+https://www.acmicpc.net/problem/1916
 */
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
-    //node를 나타내는 클래스
+
+    //Node(도시)를 나타내는 클래스
     private static class Node {
         int number;
-        //진입차수
-        int linkEdge = 0;
-        //간선
-        ArrayList<Node> edge = new ArrayList<>();
+        //시작점에서 해당 노드로 가는 총 비용
+        int totalPayOff = 1000000000;
+        //key = 연결된 node 번호, value = 비용
+        Map<Integer, Integer> edgeMap = new HashMap<>();
 
         public Node(int number) {
             this.number = number;
         }
     }
 
-    //위상정렬된 값들을 sortResult에 넣고 반환하는 메서드
-    private static ArrayList<Integer> topologySort(Node[] nodeArr) {
-        //위상정렬된 값들이 들어갈 리스트
-        ArrayList<Integer> sortResult = new ArrayList<>();
+    //bfs로 각 노드를 탐색하면서 totalPayOff의 최소값을 구한다.
+    private static void bfs(Node[] nodeArr, int start, int end) {
         Queue<Node> queue = new LinkedList<>();
-
-        //queue에 초기값으로 노드방향 간선 수가 0인 값들을 넣는다.
-        for (int i = 1; i < nodeArr.length; i++) {
-            if (nodeArr[i].linkEdge == 0) {
-                queue.offer(nodeArr[i]);
-                sortResult.add(nodeArr[i].number);
-            }
-        }
+        //시작점은 이전 노드가 없어서 비교할 수 없기 때문에 totalPayOff를 0으로 설정해준다.
+        nodeArr[start].totalPayOff = 0;
+        queue.offer(nodeArr[start]);
 
         while (!queue.isEmpty()) {
             Node node = queue.poll();
 
-            //반복문을 돌면서 node와 연결된 간선을 지운다.
-            //간선을 지운다 = 간선으로 이어진 node의 linkEdge(진입차수)에서 1을 빼줌
-            for (int i = 0; i < node.edge.size(); i++) {
-                Node linkNode = node.edge.get(i);
-                linkNode.linkEdge--;
-                if (linkNode.linkEdge == 0) {
-                    queue.offer(linkNode);
-                    sortResult.add(linkNode.number);
+            Map<Integer, Integer> edgeMap = node.edgeMap;
+            for (Integer nextNodeNumber : edgeMap.keySet()) {
+                Node nextNode = nodeArr[nextNodeNumber];
+                //현재 노드에서 다음 노드로 가는 총 비용
+                int totalPayOff = edgeMap.get(nextNodeNumber) + node.totalPayOff;
+
+                //현재 노드에서 다음 노드로 가는 총 비용이 다음 노드에 저장된 totalPayOff보다 크다면 nextNode를 탐색할 필요가 없다.
+                if (totalPayOff >= nextNode.totalPayOff) {
+                    continue;
                 }
+                nextNode.totalPayOff = totalPayOff;
+
+                //도착점에서 더 탐색을 할 필요가 없기 때문에 Queue에 넣지 않는다.
+                if (nextNode.number == end) {
+                    continue;
+                }
+                queue.offer(nextNode);
             }
         }
-        return sortResult;
     }
+
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int nodeSize = scanner.nextInt();
         int edgeSize = scanner.nextInt();
-
         Node[] nodeArr = new Node[nodeSize + 1];
+
         for (int i = 1; i <= nodeSize; i++) {
             nodeArr[i] = new Node(i);
         }
@@ -68,12 +67,20 @@ public class Main {
         for (int i = 0; i < edgeSize; i++) {
             int from = scanner.nextInt();
             int to = scanner.nextInt();
-            nodeArr[from].edge.add(nodeArr[to]);
-            //진입차수 증가
-            nodeArr[to].linkEdge++;
+            int payOff = scanner.nextInt();
+            //입력으로 복수의 from - > to 가 주어질 수 있다. 가장 작은 비용의 경로로 값을 저장한다.
+            if (nodeArr[from].edgeMap.get(to) != null) {
+                if (nodeArr[from].edgeMap.get(to) <= payOff) {
+                    continue;
+                }
+            }
+            nodeArr[from].edgeMap.put(to, payOff);
         }
+        int start = scanner.nextInt();
+        int end = scanner.nextInt();
 
-        ArrayList<Integer> sortResult = topologySort(nodeArr);
-        sortResult.forEach(s -> System.out.print(s + " "));
+        bfs(nodeArr, start, end);
+
+        System.out.println(nodeArr[end].totalPayOff);
     }
 }
