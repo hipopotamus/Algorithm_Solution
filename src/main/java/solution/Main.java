@@ -1,86 +1,106 @@
 package solution;
 
 /*
-백준 1916번 문제_최소비용 구하기
-https://www.acmicpc.net/problem/1916
+백준 1753번 문제_최단경로 구하기
+https://www.acmicpc.net/problem/1753
 */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+import java.util.Scanner;
 
 public class Main {
 
-    //Node(도시)를 나타내는 클래스
+    //간선을 나타내는 클래스
+    private static class Edge {
+        //간선이 향하는 노드
+        int to;
+        //해당 간선의 가중치
+        int payOff;
+
+        public Edge(int to, int payOff) {
+            this.to = to;
+            this.payOff = payOff;
+        }
+    }
+
+    //노드(정점)을 나타내는 클래스
     private static class Node {
         int number;
-        //시작점에서 해당 노드로 가는 총 비용
-        int totalPayOff = 1000000000;
-        //key = 연결된 node 번호, value = 비용
-        Map<Integer, Integer> edgeMap = new HashMap<>();
+        //시작점 부터 해당 노드까지 이동하는데 필요한 비용
+        int totalPayOff = 10000000;
+        boolean check = false;
+        ArrayList<Edge> edgeList = new ArrayList<>();
 
         public Node(int number) {
             this.number = number;
         }
     }
 
-    //bfs로 각 노드를 탐색하면서 totalPayOff의 최소값을 구한다.
-    private static void bfs(Node[] nodeArr, int start, int end) {
-        Queue<Node> queue = new LinkedList<>();
-        //시작점은 이전 노드가 없어서 비교할 수 없기 때문에 totalPayOff를 0으로 설정해준다.
+    //다익스트라를 사용해서 start로 부터 각 노드까지의 최소 비용을 구한다.
+    private static void bfs(Node[] nodeArr, int start) {
+        /*
+        Queue에는 Edge가 들어간다.
+        이 Queue에 들어가는 Edge는 Node의 Edge와는 다르다.
+        payOff가 to노드로 이어지는 간선의 가중치가 아니라 start로 부터 to까지의 이동하는데 필요한 비용을 의미한다.
+        해당 Queue는 start로 부터 to까지 이동하는데 필요한 비용을 기준으로 오름차순 정렬된다.
+        */
+        PriorityQueue<Edge> queue = new PriorityQueue<>((e1, e2) -> e1.payOff < e2.payOff ? -1 : 1);
         nodeArr[start].totalPayOff = 0;
-        queue.offer(nodeArr[start]);
+        queue.offer(new Edge(start, 0));
 
         while (!queue.isEmpty()) {
-            Node node = queue.poll();
+            Edge queueEdge = queue.poll();
+            Node node = nodeArr[queueEdge.to];
 
-            Map<Integer, Integer> edgeMap = node.edgeMap;
-            for (Integer nextNodeNumber : edgeMap.keySet()) {
-                Node nextNode = nodeArr[nextNodeNumber];
-                //현재 노드에서 다음 노드로 가는 총 비용
-                int totalPayOff = edgeMap.get(nextNodeNumber) + node.totalPayOff;
-
-                //현재 노드에서 다음 노드로 가는 총 비용이 다음 노드에 저장된 totalPayOff보다 크다면 nextNode를 탐색할 필요가 없다.
-                if (totalPayOff >= nextNode.totalPayOff) {
+            //아래 반복문에서는 간선을 Queue에 넣는것이기 때문에 node에 대한 check를 여기서 한다.
+            if (node.check) {
+                continue;
+            }
+            node.check = true;
+            //Queue에서 뽑은 Edge의 to는 start에서 to로 가는 총 비용이 가장 적다.
+            //to와 연결된 간선을 전부 탐색하며 이어진 노드의 totalPayOff를 갱신한다.
+            //탐색한 간선은 전부 Queue에 넣어준다. 간선의 노드가 check됐다면 나중에 반복문에서 알아서 걸러진다.
+            for (int i = 0; i < node.edgeList.size(); i++){
+                Edge edge = node.edgeList.get(i);
+                Node nextNode = nodeArr[edge.to];
+                int totalPayOff = node.totalPayOff + edge.payOff;
+                //간선과 연결된 노드의 totalPayOff를 갱신한다.
+                if (nextNode.totalPayOff <= totalPayOff) {
                     continue;
                 }
                 nextNode.totalPayOff = totalPayOff;
-
-                //도착점에서 더 탐색을 할 필요가 없기 때문에 Queue에 넣지 않는다.
-                if (nextNode.number == end) {
-                    continue;
-                }
-                queue.offer(nextNode);
+                queue.offer(new Edge(nextNode.number, nextNode.totalPayOff));
             }
         }
     }
-
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int nodeSize = scanner.nextInt();
         int edgeSize = scanner.nextInt();
+        int start = scanner.nextInt();
         Node[] nodeArr = new Node[nodeSize + 1];
 
         for (int i = 1; i <= nodeSize; i++) {
             nodeArr[i] = new Node(i);
         }
-
         for (int i = 0; i < edgeSize; i++) {
             int from = scanner.nextInt();
             int to = scanner.nextInt();
             int payOff = scanner.nextInt();
-            //입력으로 복수의 from - > to 가 주어질 수 있다. 가장 작은 비용의 경로로 값을 저장한다.
-            if (nodeArr[from].edgeMap.get(to) != null) {
-                if (nodeArr[from].edgeMap.get(to) <= payOff) {
-                    continue;
-                }
-            }
-            nodeArr[from].edgeMap.put(to, payOff);
+
+            nodeArr[from].edgeList.add(new Edge(to, payOff));
         }
-        int start = scanner.nextInt();
-        int end = scanner.nextInt();
 
-        bfs(nodeArr, start, end);
+        bfs(nodeArr, start);
 
-        System.out.println(nodeArr[end].totalPayOff);
+        for (int i = 1; i < nodeArr.length; i++) {
+            if (nodeArr[i].totalPayOff == 10000000) {
+                System.out.println("INF");
+            } else {
+                System.out.println(nodeArr[i].totalPayOff);
+            }
+        }
     }
 }
