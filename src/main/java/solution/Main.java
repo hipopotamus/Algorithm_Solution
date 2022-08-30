@@ -1,53 +1,37 @@
 package solution;
 
 /*
-백준 9241번 문제_바이러스 복제
-https://www.acmicpc.net/problem/9241
+백준 5052번 문제_전화번호 목록
+https://www.acmicpc.net/problem/5052
 */
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-    private static int countTransDna(String dna, String infectedDna) {
-        int count = 0;
-        int dnaIndex = 0;
-        int infectedDnaIndex = 0;
-
-        //두 문자열의 접두사가 같을 때 까지 각 인덱스를 늘린다.
-        while (dnaIndex < dna.length() && infectedDnaIndex < infectedDna.length()
-                && dna.charAt(dnaIndex) == infectedDna.charAt(infectedDnaIndex)) {
-            dnaIndex++;
-            infectedDnaIndex++;
-        }
-
-        int lastDnaLength = dna.length() - dnaIndex;
-        int lastInfectedDnaLength = infectedDna.length() - infectedDnaIndex;
-        //문자열이 달라진 이후부터는 감염된 DNA가 삽입됐다는 것이기 때문에,
-        //문자열이 달라진 이후부터 감염된 DNA의 개수가 감염된 DNA가 될 수 있는 최대 개수이다.
-        int maxCount = lastInfectedDnaLength;
-
-        int countSize = Math.min(lastDnaLength, lastInfectedDnaLength);
-        //각 문자열의 뒷부분을 비교했을 때 일치한다면, 감염된 DNA가 아니라는 뜻이기 때문에 count를 늘려준다.
-        for (int i = 0; i < countSize; i++) {
-            char lastDnaWord = dna.charAt(dna.length() - 1 - i);
-            char lastInfectedDnaWord = infectedDna.charAt(infectedDna.length() - 1 - i);
-            if (lastDnaWord == lastInfectedDnaWord) {
-                count++;
-            } else {
-                break;
-            }
-        }
-
-        //감염된 DNA가 될 수 있는 최대 개수 - 감염된 DNA가 아닌 문자의 개수
-        return maxCount - count;
-    }
-
-
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
-        String dna = scanner.next();
-        String infectedDna = scanner.next();
+        int caseSize = scanner.nextInt();
 
-        System.out.println(countTransDna(dna, infectedDna));
+        while (caseSize-- > 0) {
+            int size = scanner.nextInt();
+            String[] strArr = new String[size];
+            String result = "YES";
+
+            for (int i = 0; i < size; i++) {
+                strArr[i] = scanner.next();
+            }
+
+            //정렬하면 항상 같은 접두사를 가진 문자가 길이순으로 정렬된다.
+            Arrays.sort(strArr);
+            for (int i = 0; i < size - 1; i++) {
+                //앞의 문자가 뒤의 문자의 접두사인지 판단.
+                if (strArr[i + 1].indexOf(strArr[i]) == 0) {
+                    result = "NO";
+                    break;
+                }
+            }
+            System.out.println(result);
+        }
     }
 }
