@@ -2,146 +2,92 @@ package solution;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 class SolutionTest {
 
-    public class Node {
-        int number;
-        int linkedNodeNum;
-        int requiredCount = 0;
-        int realCount = 0;
-        boolean isLeaf = false;
-        int index = 0;
-        List<Integer> edgeList = new ArrayList<>();
+    public int[] getUserResult(int[] discount, int[] emoticons, int[] user) {
 
-        public Node(int number) {
-            this.number = number;
-        }
+        int[] userResult = new int[2];
+        int totalPrice = 0;
 
-        public void nextLinkedNode() {
-            if (edgeList.size() == 0) {
-                return;
-            }
-            linkedNodeNum = edgeList.get(index);
-            if (index == edgeList.size() - 1) {
-                index = 0;
-                return;
-            }
-            index++;
-        }
-    }
+        int userDiscountRate = user[0];
+        int userMaxPrice = user[1];
+        for (int i = 0; i < emoticons.length; i++) {
 
-    public boolean validation(Node[] nodeArr) {
-        for (int i = 1; i < nodeArr.length; i++) {
-            if (nodeArr[i].isLeaf && nodeArr[i].realCount < nodeArr[i].requiredCount) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean throwNumber(Node[] nodeArr, List<Integer> seq, int[] targetArr) {
-        Node node = nodeArr[1];
-        while (true) {
-
-            Node nextNode = nodeArr[node.linkedNodeNum];
-            node.nextLinkedNode();
-            if (nextNode.isLeaf) {
-                seq.add(nextNode.number);
-                nextNode.realCount++;
-                if (nextNode.realCount > targetArr[nextNode.number - 1]) {
-                    return false;
-                }
-                if (validation(nodeArr)) {
-                    break;
-                }
-
-                node = nodeArr[1];
+            if (discount[i] < userDiscountRate) {
                 continue;
             }
-            node = nextNode;
+
+            int discountedEmoticon = (int) (emoticons[i] * (1 - discount[i] / 100f));
+            totalPrice += discountedEmoticon;
         }
-        return true;
+
+        if (totalPrice >= userMaxPrice) {
+            userResult[0] = 1;
+            userResult[1] = 0;
+            return userResult;
+        }
+
+        userResult[0] = 0;
+        userResult[1] = totalPrice;
+        return userResult;
     }
+    
+    public int[] getResult(int[] discount, int[] emoticons, int[][] users) {
 
-    public int[] getResult(Node[] nodeArr, List<Integer> seq, int[] targetArr) {
-        int[] result = new int[seq.size()];
-        for (int i = 0; i < result.length; i++) {
-            Integer number = seq.get(i);
-            Node node = nodeArr[number];
-            int target = targetArr[number - 1];
+        int[] result = new int[2];
 
-            if (node.realCount == 1) {
-                result[i] = target;
-                targetArr[number - 1] -= target;
-            } else if (node.realCount > 1) {
-                int max = (node.realCount - 1) * 3;
-                if (max >= target) {
-                    result[i] = 1;
-                } else {
-                    result[i] = target - max;
-                }
-                targetArr[number - 1] -= result[i];
-            }
+        for (int i = 0; i < users.length; i++) {
+            int[] user = users[i];
+            int[] userResult = getUserResult(discount, emoticons, user);
 
-            node.realCount -= 1;
+            result[0] += userResult[0];
+            result[1] += userResult[1];
         }
+
         return result;
     }
 
+    public void dfs(int[] discount, int[] emoticons, int[][] users, int[] result, int depth) {
+        if (depth == discount.length) {
+            int[] tempResult = getResult(discount, emoticons, users);
 
-    private Node[] initNodeArr(int[][] edges, int[] target) {
-        Node[] nodeArr = new Node[edges.length + 2];
-
-        for (int i = 1; i < nodeArr.length; i++) {
-            nodeArr[i] = new Node(i);
-        }
-
-        for (int i = 0; i < edges.length; i++) {
-            Node from = nodeArr[edges[i][0]];
-            Node to = nodeArr[edges[i][1]];
-            from.edgeList.add(to.number);
-        }
-
-        for (int i = 1; i < nodeArr.length; i++) {
-            Node node = nodeArr[i];
-            if (node.edgeList.size() == 0) {
-                node.isLeaf = true;
+            if (result[0] < tempResult[0]) {
+                result[0] = tempResult[0];
+                result[1] = tempResult[1];
+            } else if (result[0] == tempResult[0] && result[1] < tempResult[1]) {
+                result[1] = tempResult[1];
             }
-            if (node.isLeaf) {
-                node.requiredCount = (int) (Math.ceil(target[i - 1] / 3d));
-            }
-            Collections.sort(node.edgeList);
-            node.nextLinkedNode();
+            return;
         }
 
-        return nodeArr;
+        for (int i = 1; i <= 4; i++) {
+            discount[depth] = i * 10;
+            dfs(discount, emoticons, users, result, depth + 1);
+        }
     }
 
-    public int[] solution(int[][] edges, int[] target) {
-        Node[] nodeArr = initNodeArr(edges, target);
+    public int[] solution(int[][] users, int[] emoticons) {
+        int[] result = new int[2];
+        int[] discount = new int[emoticons.length];
 
-        List<Integer> seq = new ArrayList<>();
-        if (!throwNumber(nodeArr, seq, target)) {
-            return new int[]{-1};
-        }
+        dfs(discount, emoticons, users, result, 0);
 
-        int[] result = getResult(nodeArr, seq, target);
         return result;
     }
 
 
     @Test
     public void solutionTest() {
-        int[][] edges = {{2, 4}, {1, 2}, {6, 8}, {1, 3}, {5, 7}, {2, 5}, {3, 6}, {6, 10}, {6, 9}};
-        int[] target = {0, 0, 0, 3, 0, 0, 5, 1, 2, 3};
-        int[] solution = solution(edges, target);
+        int[][] users1 = {{40, 10000}, {25, 10000}};
+        int[] emoticons1 = {7000, 9000};
 
-        System.out.println(Arrays.toString(solution));
+        int[][] users2 = {{40, 2900}, {23, 10000}, {11, 5200}, {5, 5900},
+                {40, 3100}, {27, 9200}, {32, 6900}};
+        int[] emoticons2 = {1300, 1500, 1600, 4900};
 
+        System.out.println(Arrays.toString(solution(users1, emoticons1)));
+        System.out.println(Arrays.toString(solution(users2, emoticons2)));
     }
 }
