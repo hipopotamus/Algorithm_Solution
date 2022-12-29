@@ -3,7 +3,9 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
 
@@ -13,7 +15,6 @@ public class Main {
 
         int location;
         int time;
-        Node beforeNode = null;
 
         public Node(int location, int time) {
             this.location = location;
@@ -21,7 +22,7 @@ public class Main {
         }
     }
 
-    private static Node bfs(Node node, int k) {
+    private static int bfs(Node node, int k) {
 
         boolean[] check = new boolean[100001];
         Queue<Node> queue = new LinkedList<>();
@@ -35,7 +36,7 @@ public class Main {
             int currentTime = currentNode.time;
 
             if (currentLocation == k) {
-                return currentNode;
+                return currentTime;
             }
 
             for (int i = 0; i < 3; i++) {
@@ -51,37 +52,12 @@ public class Main {
                     continue;
                 }
 
-                Node nextNode = new Node(nextLocation, currentTime + 1);
-                nextNode.beforeNode = currentNode;
-
-                queue.offer(nextNode);
+                queue.offer(new Node(nextLocation, currentTime + 1));
                 check[nextLocation] = true;
             }
         }
 
-        return null;
-    }
-
-    private static void printRoute(List<Integer> route, Node result, int n) {
-
-        System.out.println(result.time);
-
-        if (result.time == 0) {
-            System.out.println(n);
-            return;
-        }
-
-        route.add(result.location);
-        Node beforeNode = result.beforeNode;
-        while (beforeNode != null) {
-            route.add(beforeNode.location);
-            beforeNode = beforeNode.beforeNode;
-        }
-
-        Collections.reverse(route);
-        for (Integer location : route) {
-            System.out.print(location + " ");
-        }
+        return -1;
     }
 
     public static void main(String[] args) throws IOException {
@@ -90,12 +66,11 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         int n = Integer.parseInt(st.nextToken());
         int k = Integer.parseInt(st.nextToken());
-        List<Integer> route = new ArrayList<>();
 
         Node node = new Node(n, 0);
 
-        Node result = bfs(node, k);
+        int result = bfs(node, k);
 
-        printRoute(route, result, n);
+        System.out.println(result);
     }
 }
