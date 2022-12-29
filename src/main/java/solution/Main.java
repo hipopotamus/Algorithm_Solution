@@ -3,35 +3,56 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private static class Node {
+        public int number;
+        public boolean adapter = false;
+        public List<Node> edgeList = new ArrayList<>();
 
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int size = Integer.parseInt(st.nextToken());
-        int target = Integer.parseInt(st.nextToken());
-        int[] coin = new int[size];
-        int[][] dp = new int[coin.length + 1][target + 1];
-
-        for (int i = 0; i < coin.length; i++) {
-            coin[i] = Integer.parseInt(br.readLine());
+        public Node(int number) {
+            this.number = number;
         }
-        Arrays.sort(coin);
+    }
 
-        dp[0][0] = 1;
-        for (int i = 1; i < dp.length; i++) {
-            for (int j = 0; j < dp[0].length; j++) {
-                if (j < coin[i - 1]) {
-                    dp[i][j] = dp[i - 1][j];
-                } else {
-                    dp[i][j] = dp[i - 1][j] + dp[i][j - coin[i - 1]];
-                }
+    private static boolean dp(Node node, Node parentNode) {
+        List<Node> edgeList = node.edgeList;
+
+        for (int i = 0; i < edgeList.size(); i++) {
+            Node nextNode = edgeList.get(i);
+            if (nextNode.equals(parentNode)) {
+                continue;
+            }
+            if (!dp(nextNode, node)) {
+                node.adapter = true;
             }
         }
+        return node.adapter;
+    }
 
-        System.out.println(dp[coin.length][target]);
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int nodeSize = Integer.parseInt(br.readLine());
+        Node[] nodeArr = new Node[nodeSize + 1];
+
+        for (int i = 0; i <= nodeSize; i++) {
+            nodeArr[i] = new Node(i);
+        }
+
+        for (int i = 0; i < nodeSize - 1; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            nodeArr[from].edgeList.add(nodeArr[to]);
+            nodeArr[to].edgeList.add(nodeArr[from]);
+        }
+
+        dp(nodeArr[1], nodeArr[1]);
+
+        long count = Arrays.stream(nodeArr)
+                .filter(node -> node.adapter)
+                .count();
+        System.out.println(count);
     }
 }
