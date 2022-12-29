@@ -23,6 +23,7 @@ public class LCS {
     }
 
     public static void main(String[] args) throws IOException {
+        //*** 입력, memorization 초기화
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         String firstString = st.nextToken();
@@ -31,6 +32,7 @@ public class LCS {
         String secondString = st.nextToken();
 
         int[][] memorization = new int[firstString.length() + 1][secondString.length() + 1];
+        //***
 
         int result = dp(memorization, firstString, secondString);
         System.out.println(result);

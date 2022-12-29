@@ -51,18 +51,7 @@ public class 토마토_7576 {
     }
 
     public static void main(String[] args) {
-        //초기화 시작
-        Scanner scanner = new Scanner(System.in);
-        int colSize = scanner.nextInt();
-        int rowSize = scanner.nextInt();
-
-        Tomato[][] tomatoes = new Tomato[rowSize][colSize];
-        for (int i = 0; i < rowSize; i++) {
-            for (int j = 0; j < colSize; j++) {
-                tomatoes[i][j] = new Tomato(i, j, scanner.nextInt());
-            }
-        }
-        //초기화 끝
+        Tomato[][] tomatoes = initTomatoes();
 
         bfs(tomatoes);
 
@@ -83,5 +72,19 @@ public class 토마토_7576 {
                 .getAsInt();   //bfs 탐색을 끝낸 토마토의 배열에서 익기까지 걸린 날짜의 최대값을 구한다.
 
         System.out.println(maxDist);
+    }
+
+    private static Tomato[][] initTomatoes() {
+        Scanner scanner = new Scanner(System.in);
+        int colSize = scanner.nextInt();
+        int rowSize = scanner.nextInt();
+
+        Tomato[][] tomatoes = new Tomato[rowSize][colSize];
+        for (int i = 0; i < rowSize; i++) {
+            for (int j = 0; j < colSize; j++) {
+                tomatoes[i][j] = new Tomato(i, j, scanner.nextInt());
+            }
+        }
+        return tomatoes;
     }
 }

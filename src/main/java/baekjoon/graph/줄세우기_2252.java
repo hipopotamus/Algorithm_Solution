@@ -20,7 +20,7 @@ public class 줄세우기_2252 {
         }
     }
 
-    //위상정렬된 값들을 sortResult에 넣고 반환하는 메서드
+    //nodeArr을 위상정렬한 뒤 List로 반환하는 메서드
     private static ArrayList<Integer> topologySort(Node[] nodeArr) {
         //위상정렬된 값들이 들어갈 리스트
         ArrayList<Integer> sortResult = new ArrayList<>();
