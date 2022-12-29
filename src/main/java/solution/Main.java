@@ -3,74 +3,115 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
 
-    static int[] moveSet = {1, -1, 2};
-
+    static int[] moveSet = {-3, 1, 3, -1};
+    
     private static class Node {
 
-        int location;
-        int time;
+        int emptyLocation;
+        int[] numberArr = new int[9];
+        int count = 0;
 
-        public Node(int location, int time) {
-            this.location = location;
-            this.time = time;
+        public Node(int beforeEmptyLocation, int emptyLocation, int[] numberArr, int count) {
+            this.count = count;
+            this.emptyLocation = emptyLocation;
+
+            for (int i = 0; i < numberArr.length; i++) {
+                this.numberArr[i] = numberArr[i];
+            }
+
+            int temp = this.numberArr[emptyLocation];
+            this.numberArr[emptyLocation] = this.numberArr[beforeEmptyLocation];
+            this.numberArr[beforeEmptyLocation] = temp;
         }
+
+        public Node() {}
     }
 
-    private static int bfs(Node node, int k) {
+    private static int intArrToInt(int[] numberArr) {
 
-        boolean[] check = new boolean[100001];
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i : numberArr) {
+            stringBuilder.append(i);
+        }
+
+        return Integer.parseInt(stringBuilder.toString());
+    }
+
+    private static Node bfs(Node firstNode, Map<Integer, Boolean> check, int dist) {
+
         Queue<Node> queue = new LinkedList<>();
-        queue.offer(node);
-        check[node.location] = true;
+        queue.offer(firstNode);
+
+        int puzzleSet = intArrToInt(firstNode.numberArr);
+        check.put(puzzleSet, true);
 
         while (!queue.isEmpty()) {
 
             Node currentNode = queue.poll();
-            int currentLocation = currentNode.location;
-            int currentTime = currentNode.time;
 
-            if (currentLocation == k) {
-                return currentTime;
+            if (intArrToInt(currentNode.numberArr) == dist) {
+                return currentNode;
             }
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
 
-                int nextLocation;
-                if (i == 2) {
-                    nextLocation = currentLocation * moveSet[i];
-                } else {
-                    nextLocation = currentLocation + moveSet[i];
-                }
+                int nextEmptyLocation = currentNode.emptyLocation + moveSet[i];
 
-                if (nextLocation < 0 || nextLocation > 100000 || check[nextLocation]) {
+                if (nextEmptyLocation < 0 || nextEmptyLocation > 8
+                        || (currentNode.emptyLocation % 3 == 2 & i == 1) || (currentNode.emptyLocation % 3 == 0 & i == 3)) {
                     continue;
                 }
 
-                queue.offer(new Node(nextLocation, currentTime + 1));
-                check[nextLocation] = true;
+                Node nextNode =
+                        new Node(currentNode.emptyLocation, nextEmptyLocation, currentNode.numberArr, currentNode.count + 1);
+
+                int nextPuzzleSet = intArrToInt(nextNode.numberArr);
+                if (check.containsKey(nextPuzzleSet)) {
+                    continue;
+                }
+
+                queue.offer(nextNode);
+                check.put(nextPuzzleSet, true);
             }
         }
 
-        return -1;
+        return null;
     }
+
 
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int n = Integer.parseInt(st.nextToken());
-        int k = Integer.parseInt(st.nextToken());
+        Node node = new Node();
 
-        Node node = new Node(n, 0);
+        Map<Integer, Boolean> check = new HashMap<>();
 
-        int result = bfs(node, k);
+        for (int i = 0; i < 3; i++) {
+            
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            for (int j = 0; j < 3; j++) {
+                int number = Integer.parseInt(st.nextToken());
 
-        System.out.println(result);
+                if (number == 0) {
+                    node.emptyLocation = 3 * i + j;
+                }
+
+                node.numberArr[3 * i + j] = number;
+            }
+        }
+
+        Node result = bfs(node, check, 123456780);
+
+        if (result == null) {
+            System.out.println(-1);
+            return;
+        }
+
+        System.out.println(result.count);
     }
 }
