@@ -3,56 +3,75 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Stack;
+import java.util.StringTokenizer;
 
 public class Main {
-    private static class Node {
-        public int number;
-        public boolean adapter = false;
-        public List<Node> edgeList = new ArrayList<>();
+    private static class Meeting {
+        long startTime;
+        long endTime;
 
-        public Node(int number) {
-            this.number = number;
+        public Meeting(long startTime, long endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
         }
     }
 
-    private static boolean dp(Node node, Node parentNode) {
-        List<Node> edgeList = node.edgeList;
+    private static void sortMeeting(Meeting[] meetingArr) {
+        Arrays.sort(meetingArr, (m1, m2) -> {
+            if (m1.startTime < m2.startTime) {
+                return -1;
+            } else if (m1.startTime == m2.startTime) {
+                if (m1.endTime < m2.endTime) {
+                    return -1;
+                }
+                return 0;
+            }
+            return 1;
+        });
+    }
 
-        for (int i = 0; i < edgeList.size(); i++) {
-            Node nextNode = edgeList.get(i);
-            if (nextNode.equals(parentNode)) {
+    private static Stack<Meeting> settingMeet(int meetingSize, Meeting[] meetingArr) {
+        Stack<Meeting> stack = new Stack<>();
+
+        Meeting firstMeeting = meetingArr[0];
+        stack.push(firstMeeting);
+
+        for (int i = 1; i < meetingSize; i++) {
+            Meeting stackedMeeting = stack.peek();
+            Meeting nextMeeting = meetingArr[i];
+
+            if (nextMeeting.startTime >= stackedMeeting.endTime) {
+                stack.push(nextMeeting);
                 continue;
             }
-            if (!dp(nextNode, node)) {
-                node.adapter = true;
+
+            if (nextMeeting.endTime < stackedMeeting.endTime) {
+                stack.pop();
+                stack.push(nextMeeting);
             }
         }
-        return node.adapter;
+        return stack;
     }
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int nodeSize = Integer.parseInt(br.readLine());
-        Node[] nodeArr = new Node[nodeSize + 1];
+        int meetingSize = Integer.parseInt(br.readLine());
 
-        for (int i = 0; i <= nodeSize; i++) {
-            nodeArr[i] = new Node(i);
-        }
+        Meeting[] meetingArr = new Meeting[meetingSize];
 
-        for (int i = 0; i < nodeSize - 1; i++) {
+        for (int i = 0; i < meetingSize; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-            int from = Integer.parseInt(st.nextToken());
-            int to = Integer.parseInt(st.nextToken());
-            nodeArr[from].edgeList.add(nodeArr[to]);
-            nodeArr[to].edgeList.add(nodeArr[from]);
+            long startTime = Long.parseLong(st.nextToken());
+            long endTime = Long.parseLong(st.nextToken());
+            meetingArr[i] = new Meeting(startTime, endTime);
         }
 
-        dp(nodeArr[1], nodeArr[1]);
+        sortMeeting(meetingArr);
 
-        long count = Arrays.stream(nodeArr)
-                .filter(node -> node.adapter)
-                .count();
-        System.out.println(count);
+        Stack<Meeting> stack = settingMeet(meetingSize, meetingArr);
+
+        System.out.println(stack.size());
     }
 }
