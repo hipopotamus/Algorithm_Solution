@@ -2,112 +2,54 @@ package solution;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-
 class SolutionTest {
 
-    static class Edge implements Comparable<Edge> {
+    static String[] numbers = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
 
-        int to;
-        int cost;
-        int state;
+    public int solution(String s) {
 
-        Edge(int to, int cost, int state) {
-            this.to = to;
-            this.cost = cost;
-            this.state = state;
+        int answer = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+
+            char point = s.charAt(i);
+            int number = 0;
+
+            if (point < '0' || point > '9') {
+                number = convert(s, i);
+                i += numbers[number].length() - 1;
+            } else {
+                number = Integer.parseInt(String.valueOf(point));
+            }
+
+            if (answer == 0) {
+                answer += number;
+            } else {
+                answer = answer * 10 + number;
+            }
         }
 
-        @Override
-        public int compareTo(Edge o) {
-            return this.cost - o.cost;
-        }
+        return answer;
     }
 
-    public int solution(int n, int start, int end, int[][] roads, int[] traps) {
+    public int convert(String s, int index) {
 
-        List<Edge>[] edgeList = new ArrayList[n + 1];
-        Map<Integer, Integer> trap = new HashMap<>();
-        int ans = (int) 1e8;
+        for (int i = 0; i < numbers.length; i++) {
 
-        for(int i = 1; i <= n; i++)
-            edgeList[i] = new ArrayList<>();
-
-        for(int[] road : roads) {
-            edgeList[road[0]].add(new Edge(road[1], road[2], 0));
-            edgeList[road[1]].add(new Edge(road[0], road[2], 1));
-        }
-
-        for(int i = 0; i < traps.length; i++)
-            trap.put(traps[i], i);
-
-        // 다익스트라
-        int[][] dist = new int[n + 1][1 << trap.size()];
-        for(int i = 1; i <= n; i++)
-            Arrays.fill(dist[i], (int) 1e8);
-
-        PriorityQueue<Edge> queue = new PriorityQueue<>();
-        queue.add(new Edge(start, 0, 0));
-        dist[start][0] = 0;
-
-        while(!queue.isEmpty()) {
-            Edge cur = queue.poll();
-            int curNode = cur.to;
-            int curCost = cur.cost;
-            int curState = cur.state;
-
-            // end에 도착했을 때
-            if(curNode == end) {
-                ans = Math.min(ans, curCost);
+            String number = numbers[i];
+            int length = number.length();
+            if (index + length > s.length()) {
                 continue;
             }
 
-            if (curCost > dist[curNode][curState]) {
-                continue;
-            }
+            String subNumber = s.substring(index, index + length);
 
-            for(Edge next : edgeList[curNode]) {
-                int nextNode = next.to;
-                int nextCost = next.cost;
-                int isReverse = next.state;
-
-                if (isReverse != (isConnected(curNode, nextNode, curState, trap) ? 1 : 0)) {
-                    continue;
-                }
-
-                int nextState = getNextState(curState, nextNode, trap);
-                nextCost += curCost;
-
-                if (nextCost >= dist[nextNode][nextState]) {
-                    continue;
-                }
-
-                dist[nextNode][nextState] = nextCost;
-                queue.add(new Edge(nextNode, nextCost, nextState));
+            if (number.equals(subNumber)) {
+                return i;
             }
         }
 
-        return ans;
-    }
-
-    public int getNextState(int curState, int nextNode, Map<Integer, Integer> trap) {
-        if(trap.containsKey(nextNode))
-            curState ^= (1 << trap.get(nextNode));
-        return curState;
-    }
-
-
-    public boolean isConnected(int curNode, int nextNode, int curState, Map<Integer, Integer> trap) {
-        boolean currNodeTrapChk = false;
-        boolean nextNodeTrapChk = false;
-
-        if(trap.containsKey(curNode))
-            currNodeTrapChk = ((curState & (1 << trap.get(curNode))) != 0);
-
-        if(trap.containsKey(nextNode))
-            nextNodeTrapChk = ((curState & (1 << trap.get(nextNode))) != 0);
-
-        return currNodeTrapChk ^ nextNodeTrapChk;
+        return -1;
     }
 
     @Test
