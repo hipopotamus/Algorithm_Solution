@@ -7,54 +7,47 @@ import java.util.List;
 
 class SolutionTest {
 
-    public int solution(String str1, String str2) {
-        String firstStr = str1.toLowerCase();
-        String secondStr = str2.toLowerCase();
+    public int[] solution(String msg) {
+        List<String> dict = new ArrayList<>();
+        dict.add(null);
 
-        List<String> first = depart(firstStr);
-        List<String> second = depart(secondStr);
-
-        float intersection = intersection(first, second);
-        float union = union(first, second, intersection);
-
-        if (union == 0) {
-            return 1 * 65536;
+        for (char i = 'A'; i <= 'Z'; i++) {
+            dict.add(String.valueOf(i));
         }
-        return (int) ((intersection / union) * 65536);
+
+        return zip(dict, msg);
     }
 
-    private float intersection(List<String> first, List<String> second) {
-        ArrayList<String> copySecond = new ArrayList<>(second);
-        float count = 0;
-        for (int i = 0; i < first.size(); i++) {
-            String str = first.get(i);
-            if (!copySecond.contains(str)) {
-                continue;
+    public int[] zip(List<String> dict, String msg) {
+        ArrayList<Integer> result = new ArrayList<>();
+
+        String input = "";
+        int start = 0;
+        while (start < msg.length()) {
+
+            int end = start + 1;
+            while (end <= msg.length()) {
+
+                input = msg.substring(start, end);
+                if (dict.contains(input)) {
+                    if (end == msg.length()) {
+                        result.add(dict.indexOf(input));
+                        end++;
+                        break;
+                    }
+                    end++;
+                } else {
+                    dict.add(input);
+                    result.add(dict.indexOf(msg.substring(start, end - 1)));
+                    break;
+                }
             }
-            copySecond.remove(str);
-            count++;
+            start = end - 1;
         }
-        return count;
-    }
 
-    private float union(List<String> first, List<String> second, float intersection) {
-        return first.size() + second.size() - intersection;
-    }
-
-    private List<String> depart(String str) {
-        ArrayList<String> result = new ArrayList<>();
-
-        for (int i = 0; i < str.length() - 1; i++) {
-            char firstChar = str.charAt(i);
-            char secondChar = str.charAt(i + 1);
-
-            if (('a' > firstChar || 'z' < firstChar) || ('a' > secondChar || 'z' < secondChar)) {
-                continue;
-            }
-
-            result.add(str.substring(i, i + 2));
-        }
-        return result;
+        return result.stream()
+                .mapToInt(Integer::intValue)
+                .toArray();
     }
 
     @Test
