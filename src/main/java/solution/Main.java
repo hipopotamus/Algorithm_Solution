@@ -9,52 +9,59 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    static int[] moveSet = {-1, 1, 2};
+    static int[] rowSet = {-1, 0, 1, 0};
+    static int[] colSet = {0, 1, 0, -1};
 
     private static class Node {
 
-        int number;
-        int time;
+        int row;
+        int col;
+        int count;
+        int wall;
+        boolean check;
 
-        public Node(int number, int time) {
-            this.number = number;
-            this.time = time;
+        public Node(int row, int col, int count, int wall, boolean check) {
+            this.row = row;
+            this.col = col;
+            this.count = count;
+            this.wall = wall;
+            this.check = check;
         }
     }
 
-    private static Node bfs(Node firstNode, int dist, boolean[] check) {
+    private static Node bfs(Node firstNode, int distRow, int distCol, Node[][] nodeArr) {
 
         Deque<Node> deque = new LinkedList<>();
         deque.offer(firstNode);
-        check[firstNode.number] = true;
+        firstNode.check = true;
 
         while (!deque.isEmpty()) {
 
             Node currentNode = deque.poll();
-            check[currentNode.number] = true;
 
-            if (currentNode.number == dist) {
+            if (currentNode.row == distRow & currentNode.col == distCol) {
                 return currentNode;
             }
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 4; i++) {
 
-                int nextNumber;
-                if (i == 2) {
-                    nextNumber = currentNode.number * moveSet[i];
-                } else {
-                    nextNumber = currentNode.number + moveSet[i];
-                }
+                int nextRow = currentNode.row + rowSet[i];
+                int nextCol = currentNode.col + colSet[i];
 
-                if (nextNumber < 0 || nextNumber > 100000 || check[nextNumber]) {
+                if (nextRow < 0 || nextCol < 0 || nextRow > distRow || nextCol > distCol
+                        || nodeArr[nextRow][nextCol].check) {
                     continue;
                 }
 
-                if (i == 2) {
-                    deque.push(new Node(nextNumber, currentNode.time));
+                Node nextNode = nodeArr[nextRow][nextCol];
+                if (nextNode.wall == 1) {
+                    nextNode.count = currentNode.count + 1;
+                    deque.offer(nextNode);
                 } else {
-                    deque.offer(new Node(nextNumber, currentNode.time + 1));
+                    nextNode.count = currentNode.count;
+                    deque.push(nextNode);
                 }
+                nextNode.check = true;
             }
         }
 
@@ -66,14 +73,21 @@ public class Main {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int n = Integer.parseInt(st.nextToken());
-        int k = Integer.parseInt(st.nextToken());
+        int col = Integer.parseInt(st.nextToken());
+        int row = Integer.parseInt(st.nextToken());
 
-        boolean[] check = new boolean[100001];
-        Node node = new Node(n, 0);
+        Node[][] nodeArr = new Node[row][col];
 
-        Node result = bfs(node, k, check);
+        for (int i = 0; i < row; i++) {
+            String line = br.readLine();
+            for (int j = 0; j < col; j++) {
+                int wall = Integer.parseInt(String.valueOf(line.charAt(j)));
+                nodeArr[i][j] = new Node(i, j, 0, wall, false);
+            }
+        }
 
-        System.out.println(result.time);
+        Node result = bfs(nodeArr[0][0], row - 1, col - 1, nodeArr);
+
+        System.out.println(result.count);
     }
 }
