@@ -3,91 +3,114 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
 
-    static int[] rowSet = {-1, 0, 1, 0};
-    static int[] colSet = {0, 1, 0, -1};
+    static char[] operatorSet = {'D', 'S', 'L', 'R'};
 
     private static class Node {
 
-        int row;
-        int col;
-        int count;
-        int wall;
-        boolean check;
+        int number;
+        Integer beforeNumber;
+        Character beforeCalculation;
 
-        public Node(int row, int col, int count, int wall, boolean check) {
-            this.row = row;
-            this.col = col;
-            this.count = count;
-            this.wall = wall;
-            this.check = check;
+        public Node(int number) {
+            this.number = number;
+        }
+
+        public Node(int number, Integer beforeNumber, Character beforeCalculation) {
+            this.number = number;
+            this.beforeNumber = beforeNumber;
+            this.beforeCalculation = beforeCalculation;
         }
     }
 
-    private static Node bfs(Node firstNode, int distRow, int distCol, Node[][] nodeArr) {
+    //문제의 연산을 처리하는 메서드
+    private static Integer calculator(char operator, int number) {
 
-        Deque<Node> deque = new LinkedList<>();
-        deque.offer(firstNode);
-        firstNode.check = true;
+        Integer result = 0;
 
-        while (!deque.isEmpty()) {
+        switch (operator) {
+            case 'D':
+                result = (number * 2) % 10000;
+                break;
+            case 'S':
+                result = number == 0 ? 9999 : number - 1;
+                break;
+            case 'L':
+                result = (number % 1000) * 10 + (number / 1000);
+                break;
+            case 'R':
+                result = (number % 10) * 1000 + (number / 10);
+        }
 
-            Node currentNode = deque.poll();
+        return result;
+    }
 
-            if (currentNode.row == distRow & currentNode.col == distCol) {
+    private static Node bfs(Node firstNode, int dist, Map<Integer, Node> checkMap) {
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(firstNode);
+        checkMap.put(firstNode.number, firstNode);
+
+        while (!queue.isEmpty()) {
+            Node currentNode = queue.poll();
+
+            if (currentNode.number == dist) {
                 return currentNode;
             }
 
             for (int i = 0; i < 4; i++) {
+                Integer nextNumber = calculator(operatorSet[i], currentNode.number);
 
-                int nextRow = currentNode.row + rowSet[i];
-                int nextCol = currentNode.col + colSet[i];
-
-                if (nextRow < 0 || nextCol < 0 || nextRow > distRow || nextCol > distCol
-                        || nodeArr[nextRow][nextCol].check) {
+                if (checkMap.containsKey(nextNumber)) {
                     continue;
                 }
 
-                Node nextNode = nodeArr[nextRow][nextCol];
-                if (nextNode.wall == 1) {
-                    nextNode.count = currentNode.count + 1;
-                    deque.offer(nextNode);
-                } else {
-                    nextNode.count = currentNode.count;
-                    deque.push(nextNode);
-                }
-                nextNode.check = true;
+                Node nextNode = new Node(nextNumber, currentNode.number, operatorSet[i]);
+                queue.offer(nextNode);
+                checkMap.put(nextNode.number, nextNode);
             }
         }
 
         return null;
     }
 
+    //마지막 노드로 부터 결과를 출력하는 메서드
+    private static String getResult(Node node, Map<Integer, Node> checkMap) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        while (node.beforeCalculation != null) {
+            stringBuilder.insert(0, node.beforeCalculation);
+
+            node = checkMap.get(node.beforeNumber);
+        }
+
+        return stringBuilder.toString();
+    }
 
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int col = Integer.parseInt(st.nextToken());
-        int row = Integer.parseInt(st.nextToken());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int caseCount = Integer.parseInt(st.nextToken());
 
-        Node[][] nodeArr = new Node[row][col];
+        for (int i = 0; i < caseCount; i++) {
 
-        for (int i = 0; i < row; i++) {
-            String line = br.readLine();
-            for (int j = 0; j < col; j++) {
-                int wall = Integer.parseInt(String.valueOf(line.charAt(j)));
-                nodeArr[i][j] = new Node(i, j, 0, wall, false);
-            }
+            st = new StringTokenizer(br.readLine(), " ");
+            int start = Integer.parseInt(st.nextToken());
+            int dist = Integer.parseInt(st.nextToken());
+
+            Node firstNode = new Node(start);
+            Map<Integer, Node> checkMap = new HashMap<>();
+
+            Node lastNode = bfs(firstNode, dist, checkMap);
+
+            String result = getResult(lastNode, checkMap);
+
+            System.out.println(result);
         }
-
-        Node result = bfs(nodeArr[0][0], row - 1, col - 1, nodeArr);
-
-        System.out.println(result.count);
     }
 }
