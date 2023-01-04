@@ -3,102 +3,107 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
-    //화면과 클립보드, 시간 정보를 갖는 클래스
     private static class Node {
 
-        int screen;
-        int clip;
-        int time;
+        int[] bucketArr = new int[3];
 
-        public Node(int screen, int clip, int time) {
-            this.screen = screen;
-            this.clip = clip;
-            this.time = time;
+        public Node(int a, int b, int c) {
+            bucketArr[0] = a;
+            bucketArr[1] = b;
+            bucketArr[2] = c;
         }
 
         public Node() {}
-    }
 
-    //다음 노드를 구하는 메서드
-    private static Node getNextNode(Node node, int number) {
+        public Node getNextNode(int from, int to, int amount, int total) {
 
-        Node nextNode = new Node();
+            Node nextNode = new Node();
 
-        switch (number) {
-            case 0:
-                nextNode.clip = node.screen;
-                nextNode.screen = node.screen;
-                break;
-            case 1:
-                if (node.clip == 0) {
-                    return null;
+            int nextFrom = this.bucketArr[from] - amount;
+            int nextTo = this.bucketArr[to] + amount;
+
+            for (int i = 0; i < 3; i++) {
+                if (i == from) {
+                    nextNode.bucketArr[i] = nextFrom;
+                } else if (i == to) {
+                    nextNode.bucketArr[i] = nextTo;
+                } else {
+                    nextNode.bucketArr[i] = total - nextFrom - nextTo;
                 }
-                nextNode.screen = node.screen + node.clip;
-                nextNode.clip = node.clip;
-                break;
-            case 2:
-                if (node.screen == 0) {
-                    return null;
-                }
-                nextNode.screen = node.screen - 1;
-                nextNode.clip = node.clip;
-                break;
+            }
+
+            return nextNode;
         }
-
-        nextNode.time = node.time + 1;
-        return nextNode;
     }
 
-    private static Node bfs(Node firstNode, int dist, Node[][] nodeArr) {
+    private static void bfs(Node firstNode, Node[][] nodeArr, int[] maxBucket, int total) {
 
         Queue<Node> queue = new LinkedList<>();
         queue.offer(firstNode);
-        nodeArr[firstNode.screen][firstNode.clip] = firstNode;
+        int[] firstBucketArr = firstNode.bucketArr;
+        nodeArr[firstBucketArr[0]][firstBucketArr[2]] = firstNode;
 
         while (!queue.isEmpty()) {
-            Node currentNode = queue.poll();
 
-            if (currentNode.screen == dist) {
-                return currentNode;
-            }
+            Node currentNode = queue.poll();
+            int[] currentBucketArr = currentNode.bucketArr;
 
             for (int i = 0; i < 3; i++) {
-                Node nextNode = getNextNode(currentNode, i);
+                for (int j = 1; j <= 2; j++) {
+                    //물을 붓는 경우를 나머지를 사용해서 표현
+                    int from = i;
+                    int to = (i + j) % 3;
 
-                //화면은 1000을 넘을 필요가 없다.
-                //복사로 1000을 넘겨서 1씩 빼주는 것은 1씩 빼고 복사하는 것과 같기 때문
-                if (nextNode == null || nextNode.screen < 0 || nextNode.screen > 1000
-                        || nodeArr[nextNode.screen][nextNode.clip] != null) {
-                    continue;
+                    if (currentBucketArr[from] == 0 || currentBucketArr[to] == maxBucket[to]) {
+                        continue;
+                    }
+
+                    int amount = Math.min(maxBucket[to] - currentBucketArr[to], currentBucketArr[from]);
+
+                    Node nextNode = currentNode.getNextNode(from, to, amount, total);
+                    int[] nextBucketArr = nextNode.bucketArr;
+
+                    if (nodeArr[nextBucketArr[0]][nextBucketArr[2]] != null) {
+                        continue;
+                    }
+
+                    queue.offer(nextNode);
+                    nodeArr[nextBucketArr[0]][nextBucketArr[2]] = nextNode;
                 }
-
-                queue.offer(nextNode);
-                nodeArr[nextNode.screen][nextNode.clip] = nextNode;
             }
         }
-
-        return null;
     }
 
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int dist = Integer.parseInt(st.nextToken());
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
 
-        //screen을 행으로 clip을 열으로 표현하는 배열
-        Node[][] nodeArr = new Node[1001][1001];
+        int[] maxBucket = new int[3];
+        maxBucket[0] = Integer.parseInt(st.nextToken());
+        maxBucket[1] = Integer.parseInt(st.nextToken());
+        maxBucket[2] = Integer.parseInt(st.nextToken());
 
-        Node firstNode = new Node(1, 0, 0);
+        //A를 행 C를 열으로 표현한다.
+        //B는 A와 C로 유추할 수 있다.
+        Node[][] nodeArr = new Node[maxBucket[0] + 1][maxBucket[2] + 1];
 
-        Node result = bfs(firstNode, dist, nodeArr);
+        Node firstNode = new Node(0, 0, maxBucket[2]);
 
-        System.out.println(result.time);
+        bfs(firstNode, nodeArr, maxBucket, maxBucket[2]);
+
+        List<Integer> result = Arrays.stream(nodeArr[0])
+                .filter(Objects::nonNull)
+                .map(node -> node.bucketArr[2]).sorted(Comparator.naturalOrder())
+                .collect(Collectors.toList());
+
+        for (Integer integer : result) {
+            System.out.print(integer + " ");
+        }
     }
 }
