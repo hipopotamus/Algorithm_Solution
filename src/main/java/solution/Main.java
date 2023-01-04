@@ -3,114 +3,102 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
 
-    static char[] operatorSet = {'D', 'S', 'L', 'R'};
-
+    //화면과 클립보드, 시간 정보를 갖는 클래스
     private static class Node {
 
-        int number;
-        Integer beforeNumber;
-        Character beforeCalculation;
+        int screen;
+        int clip;
+        int time;
 
-        public Node(int number) {
-            this.number = number;
+        public Node(int screen, int clip, int time) {
+            this.screen = screen;
+            this.clip = clip;
+            this.time = time;
         }
 
-        public Node(int number, Integer beforeNumber, Character beforeCalculation) {
-            this.number = number;
-            this.beforeNumber = beforeNumber;
-            this.beforeCalculation = beforeCalculation;
-        }
+        public Node() {}
     }
 
-    //문제의 연산을 처리하는 메서드
-    private static Integer calculator(char operator, int number) {
+    //다음 노드를 구하는 메서드
+    private static Node getNextNode(Node node, int number) {
 
-        Integer result = 0;
+        Node nextNode = new Node();
 
-        switch (operator) {
-            case 'D':
-                result = (number * 2) % 10000;
+        switch (number) {
+            case 0:
+                nextNode.clip = node.screen;
+                nextNode.screen = node.screen;
                 break;
-            case 'S':
-                result = number == 0 ? 9999 : number - 1;
+            case 1:
+                if (node.clip == 0) {
+                    return null;
+                }
+                nextNode.screen = node.screen + node.clip;
+                nextNode.clip = node.clip;
                 break;
-            case 'L':
-                result = (number % 1000) * 10 + (number / 1000);
+            case 2:
+                if (node.screen == 0) {
+                    return null;
+                }
+                nextNode.screen = node.screen - 1;
+                nextNode.clip = node.clip;
                 break;
-            case 'R':
-                result = (number % 10) * 1000 + (number / 10);
         }
 
-        return result;
+        nextNode.time = node.time + 1;
+        return nextNode;
     }
 
-    private static Node bfs(Node firstNode, int dist, Map<Integer, Node> checkMap) {
+    private static Node bfs(Node firstNode, int dist, Node[][] nodeArr) {
 
         Queue<Node> queue = new LinkedList<>();
         queue.offer(firstNode);
-        checkMap.put(firstNode.number, firstNode);
+        nodeArr[firstNode.screen][firstNode.clip] = firstNode;
 
         while (!queue.isEmpty()) {
             Node currentNode = queue.poll();
 
-            if (currentNode.number == dist) {
+            if (currentNode.screen == dist) {
                 return currentNode;
             }
 
-            for (int i = 0; i < 4; i++) {
-                Integer nextNumber = calculator(operatorSet[i], currentNode.number);
+            for (int i = 0; i < 3; i++) {
+                Node nextNode = getNextNode(currentNode, i);
 
-                if (checkMap.containsKey(nextNumber)) {
+                //화면은 1000을 넘을 필요가 없다.
+                //복사로 1000을 넘겨서 1씩 빼주는 것은 1씩 빼고 복사하는 것과 같기 때문
+                if (nextNode == null || nextNode.screen < 0 || nextNode.screen > 1000
+                        || nodeArr[nextNode.screen][nextNode.clip] != null) {
                     continue;
                 }
 
-                Node nextNode = new Node(nextNumber, currentNode.number, operatorSet[i]);
                 queue.offer(nextNode);
-                checkMap.put(nextNode.number, nextNode);
+                nodeArr[nextNode.screen][nextNode.clip] = nextNode;
             }
         }
 
         return null;
     }
 
-    //마지막 노드로 부터 결과를 출력하는 메서드
-    private static String getResult(Node node, Map<Integer, Node> checkMap) {
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        while (node.beforeCalculation != null) {
-            stringBuilder.insert(0, node.beforeCalculation);
-
-            node = checkMap.get(node.beforeNumber);
-        }
-
-        return stringBuilder.toString();
-    }
-
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int caseCount = Integer.parseInt(st.nextToken());
+        int dist = Integer.parseInt(st.nextToken());
 
-        for (int i = 0; i < caseCount; i++) {
+        //screen을 행으로 clip을 열으로 표현하는 배열
+        Node[][] nodeArr = new Node[1001][1001];
 
-            st = new StringTokenizer(br.readLine(), " ");
-            int start = Integer.parseInt(st.nextToken());
-            int dist = Integer.parseInt(st.nextToken());
+        Node firstNode = new Node(1, 0, 0);
 
-            Node firstNode = new Node(start);
-            Map<Integer, Node> checkMap = new HashMap<>();
+        Node result = bfs(firstNode, dist, nodeArr);
 
-            Node lastNode = bfs(firstNode, dist, checkMap);
-
-            String result = getResult(lastNode, checkMap);
-
-            System.out.println(result);
-        }
+        System.out.println(result.time);
     }
 }
