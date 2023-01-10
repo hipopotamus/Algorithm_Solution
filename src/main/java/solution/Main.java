@@ -7,34 +7,19 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-    private static void dp(int dist, int[] memorization) {
-
-        for (int i = 2; i <= dist; i++) {
-            //1을 뺐을 때
-            memorization[i] = memorization[i - 1] + 1;
-
-            //2로 나뉘어 질 때
-            if (i % 2 == 0) {
-                memorization[i] = Math.min(memorization[i], memorization[i / 2] + 1);
-            }
-
-            //3으로 나뉘어 질 때
-            if (i % 3 == 0) {
-                memorization[i] = Math.min(memorization[i], memorization[i / 3] + 1);
-            }
-        }
-    }
-
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         int dist = Integer.parseInt(st.nextToken());
 
-        //memorization[i] = i에서 1로 가는 최소 횟수
-        int[] memorization = new int[dist + 1];
+        int[] memorization = new int[dist + 2];
+        memorization[1] = 1;
+        memorization[2] = 2;
 
-        dp(dist, memorization);
+        for (int i = 3; i <= dist; i++) {
+            memorization[i] = (memorization[i - 1] + memorization[i - 2]) % 10007;
+        }
 
         System.out.println(memorization[dist]);
     }
