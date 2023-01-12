@@ -11,16 +11,25 @@ public class Main {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int dist = Integer.parseInt(st.nextToken());
-
-        int[] memorization = new int[dist + 2];
+        int tryCount = Integer.parseInt(st.nextToken());
+        int[] memorization = new int[11];
+        memorization[0] = 1;
         memorization[1] = 1;
         memorization[2] = 2;
 
-        for (int i = 3; i <= dist; i++) {
-            memorization[i] = (memorization[i - 1] + memorization[i - 2]) % 10007;
-        }
+        for (int i = 0; i < tryCount; i++) {
+            st = new StringTokenizer(br.readLine());
+            int dist = Integer.parseInt(st.nextToken());
 
-        System.out.println(memorization[dist]);
+            for (int j = 3; j <= dist; j++) {
+                if (memorization[j] != 0) {
+                    continue;
+                }
+                //점화식
+                memorization[j] = memorization[j - 1] + memorization[j - 2] + memorization[j - 3];
+            }
+
+            System.out.println(memorization[dist]);
+        }
     }
 }
