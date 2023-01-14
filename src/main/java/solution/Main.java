@@ -3,6 +3,7 @@ package solution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -12,26 +13,28 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         int dist = Integer.parseInt(st.nextToken());
+        long mod = 1000000000L;
 
-        int[] price = new int[dist + 1];
-        int[] memorization = new int[dist + 1];
+        long[][] memorization = new long[dist + 1][11];
 
-        st = new StringTokenizer(br.readLine(), " ");
-        for (int i = 1; i <= dist; i++) {
-            price[i] = Integer.parseInt(st.nextToken());
-        }
+        Arrays.fill(memorization[1], 1);
+        memorization[1][0] = 0L;
+        memorization[1][10] = 0L;
 
-        //memorization[n] = 카드를 n개살 때 최대 비용
-        //memorization[n] = max(memorization[n-a] + price[a]) (0 < a <= n)
-        //카드를 n개살 때 최대 비용 = 카드를 n -a개 살때 최대 비용 + a개 들어있는 카드팩을 산 비용의 최대값
-        for (int i = 1; i <= dist; i++) {
-            int max = 0;
-            for (int j = 1; j <= i; j++) {
-                max = Math.max(max, memorization[i - j] + price[j]);
+        //점화식
+        //memorization[n][m] = 길이가 n이고, 끝이 m인 계단수의 개수
+        //memorization[n][m] = memorization[n - 1][m - 1] + memorization[n - 1][m + 1]
+        for (int i = 2; i <= dist; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (j == 0) {
+                    memorization[i][j] = memorization[i - 1][j + 1] % mod;
+                } else {
+                    memorization[i][j] = (memorization[i - 1][j - 1]  + memorization[i - 1][j + 1]) % mod;
+                }
             }
-            memorization[i] = max;
         }
 
-        System.out.println(memorization[dist]);
+        long result = Arrays.stream(memorization[dist]).sum();
+        System.out.println(result % mod);
     }
 }
