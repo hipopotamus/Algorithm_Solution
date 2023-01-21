@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class 새로_치킨_소스_레시피 {
+
     private void permutation(ArrayList<Integer[]> resultList, Integer[] result, int[] stuffArr, boolean[] check,
                              int depth, int choiceNum) {
 

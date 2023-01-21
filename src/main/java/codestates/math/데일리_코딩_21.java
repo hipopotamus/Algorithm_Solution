@@ -16,6 +16,7 @@ int 타입을 리턴해야 합니다.
 */
 
 public class 데일리_코딩_21 {
+
     int result = 0;
 
     public void combination(int index, int count, int comb, int[] arr) {   //3개 숫자의 조합을 찾는 메서드

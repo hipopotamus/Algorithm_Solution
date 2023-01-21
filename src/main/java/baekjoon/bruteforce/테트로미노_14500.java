@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class 테트로미노_14500 {
+
     public static class Location {   //row, col의 값을 갖는 클래스
         int row;
         int col;

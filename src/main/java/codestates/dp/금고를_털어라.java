@@ -14,6 +14,7 @@ $10 다섯 장을 훔친다
 */
 
 public class 금고를_털어라 {
+
     public long ocean(int target, int[] type) {
         long[][] dp = new long[type.length + 1][target + 1];
         dp[0][0] = 1;

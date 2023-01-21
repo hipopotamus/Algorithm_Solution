@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class 미세먼지_안녕_17144 {
+
     static int[] rowSet = {-1, 0, 1, 0};
     static int[] colSet = {0, 1, 0, -1};
 

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class FourSum_18 {
+
     private int setIndex(int firstIndex, int secondIndex, int index, boolean isStart) {   //start, end 포인터를 설정 및 이동시키는 메서드
         if (isStart) {
             if (index == firstIndex || index == secondIndex) {

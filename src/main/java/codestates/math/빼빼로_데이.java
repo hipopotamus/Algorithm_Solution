@@ -30,6 +30,7 @@ output은 output[i][0], 즉 '빼빼로를 받게 되는 직원의 수'를 기준
 import java.util.ArrayList;
 
 public class 빼빼로_데이 {
+
     private int gcd(int M, int N) {   //최대공약수를 구하는 메서드
         if (M < N) {
             int temp = M;

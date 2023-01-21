@@ -3,6 +3,7 @@ package baekjoon.math;
 import java.io.*;
 
 public class 약수의_합_17425 {
+
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));

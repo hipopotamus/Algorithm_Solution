@@ -3,6 +3,7 @@ package baekjoon.binarysearch;
 import java.util.Scanner;
 
 public class K번째_수_1300 {
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int n = scanner.nextInt();

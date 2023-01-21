@@ -3,6 +3,7 @@ package programmers.bfs;
 import java.util.*;
 
 public class 순위 {
+
     private static class Info {
         int number;
         HashSet<Integer> up = new HashSet<>();

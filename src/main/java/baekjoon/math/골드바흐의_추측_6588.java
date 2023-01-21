@@ -3,6 +3,7 @@ package baekjoon.math;
 import java.io.*;
 
 public class 골드바흐의_추측_6588 {
+
     public static boolean[] makePrimeSet(int size) {   //아리스토텔레스의 체
         boolean[] prime = new boolean[size + 1];
         prime[0] = true;

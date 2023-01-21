@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class 집밥이_그리워 {
+
     ArrayList<String[]> resultList = new ArrayList<>();
 
     private void combination(String[] sideDishes, String[] result, int start, int depth, int max) {   //조합을 구하는 메서드

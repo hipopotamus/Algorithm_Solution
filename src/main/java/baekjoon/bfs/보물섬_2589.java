@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.Scanner;
 
 public class 보물섬_2589 {
+
     public static class Info {   //배열의 원소 정보를 담은 클래스
         Point point;
         boolean land;
