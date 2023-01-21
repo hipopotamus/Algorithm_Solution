@@ -1,4 +1,4 @@
-package showmethecode;
+package codingtest.showmethecode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
