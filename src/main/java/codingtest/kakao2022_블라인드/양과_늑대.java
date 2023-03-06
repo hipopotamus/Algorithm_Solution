@@ -1,6 +1,5 @@
 package codingtest.kakao2022_블라인드;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class 양과_늑대 {
@@ -28,6 +27,6 @@ public class 양과_늑대 {
 
         }
 
-
+        return 0;
     }
 }
