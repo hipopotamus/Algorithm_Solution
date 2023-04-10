@@ -2,7 +2,7 @@ package programmers.bfs;
 
 import org.junit.jupiter.api.Test;
 
-class 순위Test {
+class 프로그래머스_bfsTest {
 
     @Test
     public void solutionTest() {
