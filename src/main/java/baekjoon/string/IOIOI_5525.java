@@ -4,27 +4,27 @@ import java.io.*;
 
 public class IOIOI_5525 {
 
-    private static void calculateP(int[] p, String word) {
+    private static void calculateP(int[] p, String target) {
         int j = 0;
-        for (int i = 1; i < word.length(); i++) {
-            while (j > 0 && word.charAt(i) != word.charAt(j)) {
+        for (int i = 1; i < target.length(); i++) {
+            while (j > 0 && target.charAt(i) != target.charAt(j)) {
                 j = p[j - 1];
             }
-            if (word.charAt(i) == word.charAt(j)) {
+            if (target.charAt(i) == target.charAt(j)) {
                 p[i] = ++j;
             }
         }
     }
 
-    private static int countWordByKMP(int[] p, String sentence, String word) {
+    private static int countWordByKMP(int[] p, String string, String target) {
         int count = 0;
         int j = 0;
-        for (int i = 0; i < sentence.length(); i++) {
-            while (j > 0 && sentence.charAt(i) != word.charAt(j)) {
+        for (int i = 0; i < string.length(); i++) {
+            while (j > 0 && string.charAt(i) != target.charAt(j)) {
                 j = p[j - 1];
             }
-            if (sentence.charAt(i) == word.charAt(j)) {
-                if (j == word.length() - 1) {
+            if (string.charAt(i) == target.charAt(j)) {
+                if (j == target.length() - 1) {
                     count++;
                     j = p[j];
                 } else {
@@ -36,7 +36,7 @@ public class IOIOI_5525 {
         return count;
     }
 
-    private static String createWord(int n) {
+    private static String createIO(int n) {
         StringBuilder sb = new StringBuilder();
         sb.append('I');
         for (int i = 0; i < n; i++) {
@@ -50,7 +50,7 @@ public class IOIOI_5525 {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
         int n = Integer.parseInt(br.readLine());
-        String word = createWord(n);
+        String word = createIO(n);
 
         int sentenceLength = Integer.parseInt(br.readLine());
         String sentence = br.readLine();
