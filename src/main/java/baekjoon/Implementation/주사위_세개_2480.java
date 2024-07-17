@@ -1,4 +1,4 @@
-package baekjoon.dataStructure;
+package baekjoon.Implementation;
 
 import java.io.*;
 import java.util.StringTokenizer;
