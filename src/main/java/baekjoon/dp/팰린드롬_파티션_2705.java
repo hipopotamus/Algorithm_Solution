@@ -6,10 +6,8 @@ public class 팰린드롬_파티션_2705 {
 
     public static void initPalindrome(int[] palindromeArr) {
         palindromeArr[1] = 1;
-        palindromeArr[2] = 2;
-        palindromeArr[3] = 2;
 
-        for (int i = 4; i < palindromeArr.length; i++) {
+        for (int i = 2; i < palindromeArr.length; i++) {
             if (i % 2 == 0) {
                 palindromeArr[i] = palindromeArr[i - 1] + palindromeArr[i / 2];
             } else {

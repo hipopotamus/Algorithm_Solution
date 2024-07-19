@@ -11,7 +11,7 @@ public class 수들의_합_2_2003 {
         int subSum = sequence[0];
         int count = 0;
 
-        while (right < sequence.length) {
+        while (true) {
             if (subSum == target) {
                 count++;
             }
@@ -20,7 +20,7 @@ public class 수들의_합_2_2003 {
                     break;
                 }
                 subSum += sequence[++right];
-            } else if (subSum > target) {
+            } else {
                 subSum -= sequence[left++];
             }
         }
