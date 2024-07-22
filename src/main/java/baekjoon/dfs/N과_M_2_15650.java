@@ -13,7 +13,7 @@ public class N과_M_2_15650 {
         }
     }
 
-    public static void permutation(Node[] nodeArr, String currentPermutation, StringBuilder sb, int n, int depth, int index) {
+    public static void combination(Node[] nodeArr, String currentPermutation, StringBuilder sb, int n, int depth, int index) {
         if (depth == n) {
             sb.append(currentPermutation).append("\n");
             return;
@@ -29,7 +29,7 @@ public class N과_M_2_15650 {
             String savedString = currentPermutation + currentNode.number + " ";
 
             currentNode.check = true;
-            permutation(nodeArr, savedString, sb, n, depth + 1, i + 1);
+            combination(nodeArr, savedString, sb, n, depth + 1, i + 1);
             currentNode.check = false;
         }
     }
@@ -49,7 +49,7 @@ public class N과_M_2_15650 {
             nodeArr[i] = new Node(i);
         }
 
-        permutation(nodeArr, "", sb, n, 0, 1);
+        combination(nodeArr, "", sb, n, 0, 1);
 
         bw.write(sb.toString());
         bw.flush();
