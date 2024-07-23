@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class 치킨_배달 {
+public class 치킨_배달_15686 {
 
     static int chickenDist = Integer.MAX_VALUE;
 
