@@ -15,6 +15,27 @@ public class 프린터_큐_1966 {
         }
     }
 
+    private static int countOrder(Queue<IndexedNumber> queue, PriorityQueue<IndexedNumber> priorityQueue, int count,
+                                  int targetIndex) {
+
+        while (true) {
+            IndexedNumber indexIndexedNumber = queue.poll();
+            IndexedNumber priorityIndexedNumber = priorityQueue.peek();
+
+            if (indexIndexedNumber.number < priorityIndexedNumber.number) {
+                queue.add(indexIndexedNumber);
+            }
+            if (indexIndexedNumber.number == priorityIndexedNumber.number) {
+                priorityQueue.poll();
+                count++;
+                if (indexIndexedNumber.index == targetIndex) {
+                    break;
+                }
+            }
+        }
+        return count;
+    }
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -22,6 +43,7 @@ public class 프린터_큐_1966 {
 
         int caseSize = Integer.parseInt(br.readLine());
 
+        //입력 시작
         for (int i = 0; i < caseSize; i++) {
             PriorityQueue<IndexedNumber> priorityQueue = new PriorityQueue<>((n1, n2) -> Integer.compare(n2.number, n1.number));
             Queue<IndexedNumber> queue = new LinkedList<>();
@@ -38,26 +60,14 @@ public class 프린터_큐_1966 {
                 priorityQueue.add(indexedNumber);
                 queue.add(indexedNumber);
             }
+        //입력 끝
 
-            while (true) {
-                IndexedNumber indexIndexedNumber = queue.poll();
-                IndexedNumber priorityIndexedNumber = priorityQueue.peek();
-
-                if (indexIndexedNumber.number < priorityIndexedNumber.number) {
-                    queue.add(indexIndexedNumber);
-                }
-                if (indexIndexedNumber.number == priorityIndexedNumber.number) {
-                    priorityQueue.poll();
-                    count++;
-                    if (indexIndexedNumber.index == targetIndex) {
-                        break;
-                    }
-                }
-            }
+            count = countOrder(queue, priorityQueue, count, targetIndex);
 
             sb.append(count).append("\n");
         }
 
+        //출력
         bw.write(sb.toString());
         bw.flush();
     }
