@@ -27,6 +27,7 @@ public class 센티와_마법의_뿅망치_19638 {
             queue.add(giantHeight);
         }
 
+        //모든 거인들이 센티보다 키가 작을 경우
         if (queue.peek() < sentiHeight) {
             answer = "YES\n";
             result = count;
@@ -35,6 +36,7 @@ public class 센티와_마법의_뿅망치_19638 {
                 int halfGiantHeight;
                 Integer maxGiantHeight = queue.poll();
 
+                //망치 적용
                 if (maxGiantHeight == 1) {
                     halfGiantHeight = maxGiantHeight;
                 } else {
@@ -43,6 +45,7 @@ public class 센티와_마법의_뿅망치_19638 {
                 count++;
                 queue.add(halfGiantHeight);
 
+                //가장 큰 거인과 센티의 키 비교
                 Integer topGiantHeight = queue.peek();
                 if (topGiantHeight < sentiHeight) {
                     answer = "YES\n";
@@ -55,8 +58,7 @@ public class 센티와_마법의_뿅망치_19638 {
             }
         }
 
-        sb.append(answer)
-                .append(result);
+        sb.append(answer).append(result);
 
         bw.write(sb.toString());
         bw.flush();

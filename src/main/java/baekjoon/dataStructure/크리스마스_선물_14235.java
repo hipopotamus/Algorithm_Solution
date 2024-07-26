@@ -12,7 +12,7 @@ public class 크리스마스_선물_14235 {
         StringBuilder sb = new StringBuilder();
         StringTokenizer st;
 
-        PriorityQueue<Integer> queue = new PriorityQueue<>(Comparator.reverseOrder());
+        PriorityQueue<Integer> presentQueue = new PriorityQueue<>(Comparator.reverseOrder());
 
         int size = Integer.parseInt(br.readLine());
 
@@ -20,18 +20,20 @@ public class 크리스마스_선물_14235 {
             st = new StringTokenizer(br.readLine());
             int command = Integer.parseInt(st.nextToken());
 
+            //선물 나눠주기
             if (command == 0) {
-                if (queue.isEmpty()) {
+                if (presentQueue.isEmpty()) {
                     sb.append(-1).append("\n");
                 } else {
-                    sb.append(queue.poll()).append("\n");
+                    sb.append(presentQueue.poll()).append("\n");
                 }
                 continue;
             }
-            
+
+            //선물 충전하기
             for (int j = 0; j < command; j++) {
                 int presentValue = Integer.parseInt(st.nextToken());
-                queue.add(presentValue);
+                presentQueue.add(presentValue);
             }
         }
 
