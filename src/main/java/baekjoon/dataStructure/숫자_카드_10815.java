@@ -7,6 +7,8 @@ import java.util.StringTokenizer;
 
 public class 숫자_카드_10815 {
 
+    //Set을 사용해서 카드를 갖고있는지 판단하는 메서드
+    //Set에 카드를 넣고 Size가 커지면 카드를 소유하지 않는 것이고 Size가 그대로면 카드를 소유하는것
     private static int[] validateGetCard(Set<Integer> NSet, Integer[] MArray) {
         int[] result = new int[MArray.length];
 
@@ -34,6 +36,7 @@ public class 숫자_카드_10815 {
         StringTokenizer st;
         Set<Integer> NSet = new HashSet<>();
 
+        //** 입력 시작
         int NSize = Integer.parseInt(br.readLine());
         st = new StringTokenizer(br.readLine());
         for (int i = 0; i < NSize; i++) {
@@ -48,9 +51,11 @@ public class 숫자_카드_10815 {
             int number = Integer.parseInt(st.nextToken());
             MArray[i] = number;
         }
+        //** 입력 끝
 
         int[] result = validateGetCard(NSet, MArray);
 
+        //-- 출력
         for (int flag : result) {
             sb.append(flag).append(" ");
         }

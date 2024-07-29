@@ -5,6 +5,9 @@ import java.util.StringTokenizer;
 
 public class 삼십번_13116 {
 
+    //공통된 부모를 찾는 메서드
+    //부모 노드의 숫자 = 현재 노드의 숫자 / 2
+    //숫자가 더 큰 노드의 부모를 찾고 숫자가 같아질 때 까지 이를 반복한다
     public static int findParent(int number1, int number2) {
         while (number1 != number2) {
             if (number1 > number2) {

@@ -11,6 +11,7 @@ public class 보물_1026 {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer st;
 
+        //입력 시작
         int sum = 0;
         int size = Integer.parseInt(br.readLine());
         Integer[] A = new Integer[size];
@@ -27,7 +28,9 @@ public class 보물_1026 {
             int number = Integer.parseInt(st.nextToken());
             B[i] = number;
         }
+        //입력 끝
 
+        //A를 내림차순으로, B를 오름차순으로 정렬
         Arrays.sort(A, Collections.reverseOrder());
         Arrays.sort(B);
 
@@ -35,6 +38,7 @@ public class 보물_1026 {
             sum += A[i] * B[i];
         }
 
+        //출력
         bw.write(String.valueOf(sum));
         bw.flush();
     }

@@ -16,6 +16,7 @@ public class 특정_거리의_도시_찾기_18352 {
         }
     }
 
+    //특정 거리에 있는 노드를 찾는 메서드
     public static List<Node> findNodesInRange(Node firstNode, int targetRange) {
         List<Node> nodesInRange = new ArrayList<>();
         Queue<Node> queue = new LinkedList<>();
@@ -25,6 +26,7 @@ public class 특정_거리의_도시_찾기_18352 {
 
         while (!queue.isEmpty()) {
             Node node = queue.poll();
+            //노드가 시작 노드로 부터 특정 거리에 있다면 리스트에 넣는다.
             if (node.dist == targetRange) {
                 nodesInRange.add(node);
                 continue;
@@ -51,6 +53,7 @@ public class 특정_거리의_도시_찾기_18352 {
         StringBuilder sb = new StringBuilder();
         StringTokenizer st = new StringTokenizer(br.readLine());
 
+        //** 입력 시작
         int nodeSize = Integer.parseInt(st.nextToken());
         int edgeSize = Integer.parseInt(st.nextToken());
         int targetRange = Integer.parseInt(st.nextToken());
@@ -68,9 +71,12 @@ public class 특정_거리의_도시_찾기_18352 {
 
             nodeArr[from].edgeList.add(nodeArr[to]);
         }
+        //** 입력 끝
 
+        //특정거리에 있는 노드들의 리스트를 구함
         List<Node> nodesInRange = findNodesInRange(nodeArr[firstNodeNumber], targetRange);
 
+        //-- 출력
         if (nodesInRange.isEmpty()) {
             sb.append(-1);
         } else {

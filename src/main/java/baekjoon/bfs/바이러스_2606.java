@@ -13,9 +13,9 @@ public class 바이러스_2606 {
     }
 
     private static int getInfectionNumber(Node firstNode) {
-
         int infectionCount = 0;
         Queue<Node> queue = new LinkedList<>();
+
         firstNode.check = true;
         queue.offer(firstNode);
 
@@ -38,6 +38,7 @@ public class 바이러스_2606 {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
+        //** 입력 시작
         int nodeSize = Integer.parseInt(br.readLine());
 
         Node[] nodeArr = new Node[nodeSize + 1];
@@ -54,9 +55,12 @@ public class 바이러스_2606 {
             nodeArr[from].edge.add(nodeArr[to]);
             nodeArr[to].edge.add(nodeArr[from]);
         }
+        //** 입력 끝
 
+        //바이러스에 감염된 컴퓨터의 수를 구함
         int infectionNumber = getInfectionNumber(nodeArr[1]);
 
+        //-- 출력
         bw.write(String.valueOf(infectionNumber));
         bw.flush();
     }
