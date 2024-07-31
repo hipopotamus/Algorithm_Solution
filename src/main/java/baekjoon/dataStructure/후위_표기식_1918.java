@@ -16,14 +16,7 @@ public class 후위_표기식_1918 {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        StringBuilder sb = new StringBuilder();
-        Deque<Character> stack = new ArrayDeque<>();
-
-        String formula = br.readLine();
-
+    private static void convertToPostfix(String formula, Deque<Character> stack, StringBuilder sb) {
         for (int i = 0; i < formula.length(); i++) {
             char character = formula.charAt(i);
 
@@ -53,6 +46,17 @@ public class 후위_표기식_1918 {
         while (!stack.isEmpty()) {
             sb.append(stack.pop());
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringBuilder sb = new StringBuilder();
+        Deque<Character> stack = new ArrayDeque<>();
+
+        String formula = br.readLine();
+
+        convertToPostfix(formula, stack, sb);
 
         bw.write(sb.toString());
         bw.flush();
