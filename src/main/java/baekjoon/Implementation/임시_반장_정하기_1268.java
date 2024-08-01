@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class 임시_반장_정하기_1268 {
 
@@ -20,32 +18,27 @@ public class 임시_반장_정하기_1268 {
         }
     }
 
+    //같은 반이였던 사람들을 찾는 메서드
+    //각 학년별로 순서대로 학생들을 전부 조사한다.
     public static void findFriends(int[][] classArr, Student[] students) {
-        for (int i = 0; i < classArr[0].length; i++) {
-            for (int j = 0; j < classArr.length; j++) {
-                Student student = students[j];
-                int classNumber = classArr[j][i];
-                for (int k = j + 1; k < classArr.length; k++) {
-                    if (classNumber == classArr[k][i]) {
+        for (int col = 0; col < classArr[0].length; col++) {
+            for (int row = 0; row < classArr.length; row++) {
+                Student student = students[row];
+                int classNumber = classArr[row][col];
+                for (int k = row + 1; k < classArr.length; k++) {
+                    if (classNumber == classArr[k][col]) {
                         student.friendSet.add(k + 1);
-                        students[k].friendSet.add(j + 1);
+                        students[k].friendSet.add(row + 1);
                     }
                 }
             }
         }
     }
 
+    //같은 반이였던 사람이 가장많은 학생을 뽑는 메서드
     public static int getClassPresident(Student[] students) {
-        int max = Arrays.stream(students)
-                .mapToInt(s1 -> s1.friendSet.size())
-                .max().getAsInt();
-
-        PriorityQueue<Integer> candidatePresident = Arrays.stream(students)
-                .filter(s1 -> s1.friendSet.size() == max)
-                .map(student -> student.number)
-                .collect(Collectors.toCollection(PriorityQueue::new));
-
-        return candidatePresident.peek();
+        Arrays.sort(students, (s1, s2) -> Integer.compare(s2.friendSet.size(), s1.friendSet.size()));
+        return students[0].number;
     }
 
     public static void main(String[] args) throws IOException {

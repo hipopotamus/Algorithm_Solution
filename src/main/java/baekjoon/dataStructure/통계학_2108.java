@@ -16,15 +16,18 @@ public class 통계학_2108 {
     }
 
     private static int getMode(Map<Integer, Integer> numberCountMap) {
+        //최다 빈도 수를 찾는다.
         Integer maxCount = numberCountMap.values().stream()
                 .max(Integer::compare)
                 .get();
 
+        //최다 빈도 수를 갖는 숫자들을 찾는다.
         PriorityQueue<Integer> modeQueue = numberCountMap.entrySet().stream()
                 .filter(entry -> entry.getValue().equals(maxCount))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toCollection(PriorityQueue::new));
 
+        //modeQueue가 1개 이상이면 두번 뽑는다.
         int mode = 0;
         if (modeQueue.size() > 1) {
             modeQueue.poll();

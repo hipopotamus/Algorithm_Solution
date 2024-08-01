@@ -8,8 +8,8 @@ public class 마인크래프트_18111 {
     static int minTime = Integer.MAX_VALUE;
     static int highestBlock = 0;
 
+    //targetHeight 보다 블럭이 높으면 깎고 낮으면 인벤토리에있는 블럭을 쌓는 메서드
     public static boolean smoothGround(int[][] blockMap, int inventory, int targetHeight) {
-
         int time = 0;
 
         for (int i = 0; i < blockMap.length; i++) {
@@ -25,6 +25,8 @@ public class 마인크래프트_18111 {
             }
         }
 
+        //targetHeight에 맞춰 모든 작업을 마치고 inventory가 음수가 아니라면 평탄화 작업이 문제없이 이루어진것
+        //음수라면 평탄화작업이 불가능한 상황을 뜻함
         if (inventory >= 0) {
             if (minTime >= time) {
                 minTime = time;
@@ -62,6 +64,7 @@ public class 마인크래프트_18111 {
             }
         }
 
+        //최소 높이와 최대 높이의 사이에서 평탄화가 가능한 최대 높이를 찾는다
         for (int i = minHeight; i <= maxHeight; i++) {
             boolean flag = smoothGround(blockMap, inventory, i);
             if (!flag) {
