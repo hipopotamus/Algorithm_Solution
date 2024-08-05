@@ -4,6 +4,7 @@ import java.io.*;
 
 public class 파도반_수열_9461 {
 
+    //sequence[i] = sequence[i - 5] + sequence[i - 1]
     private static long calculateSequence(int n, long[] sequence) {
         return sequence[n - 5] + sequence[n - 1];
     }

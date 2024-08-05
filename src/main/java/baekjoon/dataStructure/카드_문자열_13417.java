@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 public class 카드_문자열_13417 {
 
+    //deque에 카드를 배치한다.
+    //deque에서 맨 앞에있는 알파벳보다 카드의 알파벳이 작으면 앞에 크면 뒤에 배치한다.
     public static String getMinLexString(String[] alphabetArr) {
         StringBuilder sb = new StringBuilder();
         Deque<String> deque = new LinkedList<>();

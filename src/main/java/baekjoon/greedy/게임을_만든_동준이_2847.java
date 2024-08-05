@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 
 public class 게임을_만든_동준이_2847 {
 
+    //가장 높은 난이도 부터 탐색
+    //현재 레벨의 점수가 한단계 높은 레벨의 점수보다 높으면 낮춰준다.
     public static int getFixCount(int[] scoreArr) {
 
         int count = 0;
