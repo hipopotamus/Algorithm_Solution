@@ -8,8 +8,8 @@ import java.util.PriorityQueue;
 
 public class 미로만들기_2665 {
 
+    //payoff -> 0 = 흰색, 1 = 검정색
     public static class Node {
-        //payoff -> 0 = 흰색, 1 = 검정색
         int row;
         int col;
         int payoff;

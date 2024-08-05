@@ -9,6 +9,7 @@ import java.util.PriorityQueue;
 
 public class 택배_배송_5972 {
 
+    //간선 클래스, 가중치를 필드로 갖음
     public static class Edge {
         Node toNode;
         int payoff;
@@ -19,6 +20,7 @@ public class 택배_배송_5972 {
         }
     }
 
+    //totalPayOff = 특정 노드로 부터 최단거리
     public static class Node {
         int totalPayOff = Integer.MAX_VALUE;
         boolean isVisited = false;
@@ -27,6 +29,7 @@ public class 택배_배송_5972 {
         public Node() {}
     }
 
+    //다익스트라로 firstNode부터 최소 거리를 찾는 메서드
     public static void calculateMinPath(Node firstNode) {
         PriorityQueue<Node> queue = new PriorityQueue<>((n1, n2) -> Integer.compare(n1.totalPayOff, n2.totalPayOff));
         firstNode.totalPayOff = 0;
@@ -64,6 +67,7 @@ public class 택배_배송_5972 {
             nodes[i] = new Node();
         }
 
+        //** 입력 시작
         for (int i = 0; i < edgeSize; i++) {
             String[] edgeInput = br.readLine().split(" ");
             int from = Integer.parseInt(edgeInput[0]);
@@ -73,6 +77,7 @@ public class 택배_배송_5972 {
             nodes[from].edges.add(new Edge(nodes[to], payoff));
             nodes[to].edges.add(new Edge(nodes[from], payoff));
         }
+        //** 입력 끝
 
         calculateMinPath(nodes[1]);
 

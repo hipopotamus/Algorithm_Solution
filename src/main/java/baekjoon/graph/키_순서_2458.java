@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 public class 키_순서_2458 {
 
+    //플로이드-워셜 알고리즘을 사용해서 각 학생간 경로가 존재하는지 확인한다.
     public static void findPaths(boolean[][] path) {
         for (int k = 0; k < path.length; k++) {
             for (int i = 0; i < path.length; i++) {
@@ -18,6 +19,7 @@ public class 키_순서_2458 {
         }
     }
 
+    //키 순서를 알 수 있는 조건 = 정방향과 역방향으로 모든 노드들과 연결되어있어야 한다.
     private static int getResult(int size, boolean[][] path) {
         int result = 0;
         for (int i = 0; i < size; i++) {

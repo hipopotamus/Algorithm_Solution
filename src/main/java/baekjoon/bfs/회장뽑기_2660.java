@@ -19,6 +19,8 @@ public class 회장뽑기_2660 {
         }
     }
 
+    //그래프 상 firstNode 에서 가장 멀리 떨어진 노드의 거리 = 친구 점수
+    //bfs로 firstNode 에서 가장 멀리 떨어진 노드의 거리를 찾고 기록
     public static void calculateFriendScore(Node firstNode) {
         Queue<Node> queue = new LinkedList<>();
 
@@ -37,12 +39,14 @@ public class 회장뽑기_2660 {
                 queue.offer(nextNode);
             }
 
+            //bfs 탐색 마지막 노드 = fristNode에서 가장 멀리 떨어진 노드
             if (queue.isEmpty()) {
                 firstNode.score = node.distance;
             }
         }
     }
 
+    //회장인 노드를 추출하는 메서드
     public static Node[] filterPresident(Node[] nodes) {
         int minScore = Arrays.stream(nodes)
                 .mapToInt(n -> n.score)
@@ -72,6 +76,7 @@ public class 회장뽑기_2660 {
             nodes[i] = new Node(i);
         }
 
+        //** 입력 시작
         while (true) {
             String[] inputEdge = br.readLine().split(" ");
             int from = Integer.parseInt(inputEdge[0]);
@@ -84,7 +89,9 @@ public class 회장뽑기_2660 {
             nodes[from].edgeList.add(nodes[to]);
             nodes[to].edgeList.add(nodes[from]);
         }
+        //** 입력 끝
 
+        //각 노드의 친구 점수를 계산
         for (int i = 1; i < size + 1; i++) {
             initNodes(nodes);
             calculateFriendScore(nodes[i]);
