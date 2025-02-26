@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class 거리_k이하인_트리_노드에서_사과_수확하기 {
+public class 거리_k이하인_트리_노드에서_사과_수확하기_25516 {
 
     public static class Node {
         int apple;
