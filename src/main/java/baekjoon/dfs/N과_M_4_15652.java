@@ -24,7 +24,6 @@ public class N과_M_4_15652 {
             }
             printCombination(N, M, depth + 1, i, sequence);
         }
-
     }
 
     public static void main(String[] args) throws IOException {
